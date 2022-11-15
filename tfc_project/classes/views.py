@@ -12,9 +12,10 @@ from rest_framework.views import APIView
 
 from classes.models import Class, ClassInstance
 
+from classes.models import UserEnrolledClass
+
 
 class CreateClassInstancesView(APIView):
-
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
@@ -31,16 +32,16 @@ class CreateClassInstancesView(APIView):
                                          coach=the_class.coach,
                                          keywords=the_class.keywords,
                                          capacity=the_class.capacity,
-                                         space_availability=the_class.space_availability,
+                                         space_availability=the_class.capacity,
                                          start_time=i,
                                          duration=duration,
                                          studio=the_class.studio)
             i = i + timedelta(days=7)
             count += 1
-        return Response({'the number of created class instances': count })
+        return Response({'the number of created class instances': count})
+
 
 class ShowClassInStudioView(APIView):
-
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
@@ -56,15 +57,30 @@ class ShowClassInStudioView(APIView):
         n = len(lst)
         for i in range(1, n):
             key = lst[i]
-            j = i-1
-            while (j>=0 and lst[j].start_time>key.start_time):
-                lst[j+1] = lst[j]
-                j = j-1
-            lst[j+1] = key
+            j = i - 1
+            while (j >= 0 and lst[j].start_time > key.start_time):
+                lst[j + 1] = lst[j]
+                j = j - 1
+            lst[j + 1] = key
 
         temp = []
         for i in lst:
             temp.append(i.get_class_info())
         return JsonResponse(temp, safe=False)
 
+
+class UserEnrolClass(APIView):
+    # permission_classes = [IsAuthenticated]
+    def post(self, request, *args, **kwargs):
+        class_id = request.POST.get('class_id', '')
+        current_time = timezone.now()
+        class_instance = ClassInstance.objects.get(id=class_id)
+        if class_instance.start_time >= current_time and class_instance.space_availability > 0:
+            class_instance.space_availability -= 1
+            class_instance.save()
+            UserEnrolledClass.objects.create(user_id=request.user.id,
+                                             class_id=class_id)
+            return Response({'details': 'successfully enrolled'})
+        else:
+            return Response({'details': 'enrolment failed because of start time and/or space availability'})
 

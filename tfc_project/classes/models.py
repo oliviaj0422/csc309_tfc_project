@@ -32,6 +32,7 @@ class ClassInstance(models.Model):
     start_time = models.DateTimeField()
     duration = models.DurationField()
     studio = models.CharField(max_length=100, null=False, blank=False)
+    is_cancelled = models.BooleanField(default=False)
 
     def __str__(self):
         return f'{self.name} in {self.studio} starting on {self.start_time}'
@@ -49,4 +50,12 @@ class ClassInstance(models.Model):
                 "capacity": self.capacity,
                 "space availability": self.space_availability,
                 "start time": self.start_time.date(),
-                "duration": self.get_duration()}
+                "duration": self.get_duration(),
+                "is cancelled": self.is_cancelled}
+
+
+class UserEnrolledClass(models.Model):
+    user_id = models.PositiveIntegerField(null=False, blank=False)
+    class_id = models.PositiveIntegerField(null=False, blank=False)
+    def __str__(self):
+        return f'user with id{self.user_id} has enrolled in class with id{self.class_id}'
