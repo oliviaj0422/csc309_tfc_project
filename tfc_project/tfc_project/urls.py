@@ -15,8 +15,28 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
+from django.urls import path
+from django.urls import re_path
+from django.views.i18n import JavaScriptCatalog
+from accounts.views import CreateUserView, CreateCardView, EditProfileView, \
+    UpdateCardView
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('classes/', include('classes.urls')),
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('account/signup/', CreateUserView.as_view()),
+    path('account/payment_info/', CreateCardView.as_view()),
+    path('account/<int:pk>/profile/edit/', EditProfileView.as_view()),
+    path('account/<int:pk>/profile/card_info/update/', UpdateCardView.as_view()),
+]
+
+js_info_dict = {
+    'packages': ('recurrence', ),
+}
+
+# jsi18n can be anything you like here
+urlpatterns += [
+    re_path(r'^jsi18n/$', JavaScriptCatalog.as_view(), js_info_dict),
 ]
