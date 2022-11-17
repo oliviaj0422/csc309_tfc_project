@@ -29,14 +29,14 @@ class Class(models.Model):
     coach = models.CharField(max_length=100, null=False, blank=False)
     keywords = models.CharField(max_length=200, null=False, blank=False)
     capacity = models.PositiveIntegerField(null=False, blank=False)
-    start_time = models.DateTimeField()
+    start_time = models.DateTimeField(help_text='This is the start time of the first instance of this class.')
     duration = models.DurationField()
-    end_time = models.DateTimeField()
+    end_time = models.DateTimeField(help_text='Every instance of this class ends before end time.')
     studio = models.CharField(max_length=100, null=False, blank=False,
                               default="studio")
 
     def __str__(self):
-        return f'{self.id} {self.name} in {self.studio} on {get_weekday(self.start_time.isoweekday())} from {self.start_time.strftime("%H:%M")} to {(self.start_time + self.duration).strftime("%H:%M")}'
+        return f'{self.name} in {self.studio} on {get_weekday(self.start_time.isoweekday())} from {self.start_time.strftime("%H:%M")} to {(self.start_time + self.duration).strftime("%H:%M")}'
 
     def save(self, *args, **kwargs):
         t1 = self.start_time

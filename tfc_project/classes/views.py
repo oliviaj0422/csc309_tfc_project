@@ -163,8 +163,16 @@ class MyClassSchedule(APIView):
 
 class SearchByClassNameView(APIView):
     def get(self, request, *args, **kwargs):
-        the_class = get_object_or_404(Class, studio=kwargs['studio'], name=kwargs['class'])
-        return Response({'details': f'{the_class.name} in {the_class.studio} on {get_weekday(the_class.start_time.isoweekday())} from {the_class.start_time.strftime("%H:%M")} to {(the_class.start_time+the_class.duration).strftime("%H:%M")}'})
+        the_class = ClassInstance.objects.filter(the_class__studio=kwargs['studio'], the_class__name=kwargs['class'], is_cancelled=False)
+        # cancelled classes will not be shown
+        if the_class:
+            i = 1
+            result = {}
+            for c in the_class:
+                result[i] = c.get_class_info()
+                i += 1
+            return Response(result)
+        raise Http404
 
 
 class SearchByCoachView(APIView):
