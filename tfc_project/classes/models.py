@@ -52,41 +52,37 @@ class Class(models.Model):
             ClassInstance.objects.create(the_class=self,
                                          space_availability=self.capacity,
                                          start_time=i,
-                                         end_time=i + self.duration)
+                                         end_time=i + self.duration,
+                                         coach=self.coach,
+                                         description=self.description,
+                                         keywords=self.keywords,
+                                         class_name=self.name)
             i = i + timedelta(days=7)
+
+    def get_class_name(self):
+        return self.name
 
 
 class ClassInstance(models.Model):
     the_class = models.ForeignKey(to=Class, on_delete=CASCADE)
+    class_name = models.CharField(max_length=200)
+    description = models.CharField(max_length=200)
+    coach = models.CharField(max_length=200)
+    keywords = models.CharField(max_length=200)
     space_availability = models.PositiveIntegerField(null=False, blank=False)
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     is_cancelled = models.BooleanField(default=False)
 
     def __str__(self):
-        return f'{self.the_class.name} with id{self.id} in {self.the_class.studio} starting at {self.start_time.strftime("%H:%M")} on {self.start_time.strftime("%Y-%m-%d")}'
-
-    def get_duration(self):
-        seconds = self.the_class.duration.total_seconds()
-        hours = seconds // 3600
-        minutes = (seconds % 3600) // 60
-        return '{} minutes, {} hours'.format(minutes, hours)
-
-    def get_class_info(self):
-        return {"id": self.id,
-                "name": self.the_class.name,
-                "description": self.the_class.description,
-                "coach": self.the_class.coach,
-                "keywords": self.the_class.keywords,
-                "capacity": self.the_class.capacity,
-                "space availability": self.space_availability,
-                "start time": self.start_time.date(),
-                "duration": self.get_duration()}
+        return f'{self.the_class.name} with id{self.id} in {self.the_class.studio} starting at {self.start_time.strftime("%H:%M")} on {self.start_time.strftime("%Y-%m-%d")} ({get_weekday(self.start_time.isoweekday())})'
 
 
 class UserEnrolledClass(models.Model):
     user_id = models.PositiveIntegerField(null=False, blank=False)
-    class_id = models.PositiveIntegerField(null=False, blank=False)
-
+    class_instance = models.ForeignKey(to=ClassInstance, on_delete=CASCADE)
+    class_instance_name = models.CharField(max_length=200)
+    class_instance_start_time = models.DateTimeField()
+    class_instance_end_time = models.DateTimeField()
     def __str__(self):
-        return f'user with id{self.user_id} has enrolled in class with id{self.class_id}'
+        return f'user with id{self.user_id} has enrolled in class with id{self.class_instance.id}'
