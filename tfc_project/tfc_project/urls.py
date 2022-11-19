@@ -21,6 +21,7 @@ from django.views.i18n import JavaScriptCatalog
 from accounts.views import CreateUserView, CreateCardView, EditProfileView, \
     UpdateCardView
 from rest_framework_simplejwt.views import TokenObtainPairView
+from django.shortcuts import redirect
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -30,6 +31,8 @@ urlpatterns = [
     path('account/payment_info/', CreateCardView.as_view()),
     path('account/<int:pk>/profile/edit/', EditProfileView.as_view()),
     path('account/<int:pk>/profile/card_info/update/', UpdateCardView.as_view()),
+    path('studios/', include('studios.urls')),
+    path('', lambda r: redirect('/admin'))
 ]
 
 js_info_dict = {

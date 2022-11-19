@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'rest_framework',
     #'recurrence',
     'classes',
+    'studios.apps.StudiosConfig',
 ]
 
 AUTH_USER_MODEL = 'accounts.CustomUser'
