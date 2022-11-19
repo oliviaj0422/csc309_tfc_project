@@ -1,11 +1,10 @@
-from django.shortcuts import get_object_or_404, render
-from rest_framework.generics import RetrieveAPIView, ListAPIView, \
-    CreateAPIView, UpdateAPIView
-from rest_framework.mixins import CreateModelMixin
+from dateutil.relativedelta import relativedelta
+from rest_framework.generics import ListAPIView, CreateAPIView, UpdateAPIView
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from .serializers import CustomUserSerializer, CardSerializer, PaymentSerializer
-from .models import CustomUser, Card, Payment
+from .models import CustomUser, Card, Payment, MembershipPlan
 import datetime
 
 
@@ -39,22 +38,71 @@ class EditProfileView(UpdateAPIView):
             user_obj.last_name = data.get('last_name', user_obj.last_name)
             user_obj.avatar = data.get('avatar', user_obj.avatar)
             user_obj.phone_num = data.get('phone_num', user_obj.phone_num)
+            old_pmt_option = user_obj.pmt_option
             user_obj.pmt_option = data.get('pmt_option',
                                            user_obj.pmt_option)
             if user_obj.pmt_option == 'N':
                 user_obj.is_subscribed = False
-            elif user_obj.pmt_option == 'M' and\
-                Card.objects.filter(holder=user_obj).exists():
-                user_obj.is_subscribed = True
-                pending_pmt = Payment.objects.filter(pmt_status='PD')
-                pending_pmt.amount = 14.99
-                pending_pmt.recur = 'Monthly'
-            elif user_obj.pmt_option == 'Y' and \
-                Card.objects.filter(holder=user_obj).exists():
-                user_obj.is_subscribed = True
-                pending_pmt = Payment.objects.filter(pmt_status='PD')
-                pending_pmt.amount = 149.99
-                pending_pmt.recur = 'Yearly'
+            if Card.objects.filter(holder=user_obj).exists():
+                card_objs = Card.objects.filter(holder=user_obj)
+                if card_objs:
+                    for card_obj in card_objs:
+                        pending_payments = \
+                            Payment.objects.filter(pmt_method=card_obj.card_num,
+                                                   pmt_status='PD').order_by(
+                                'pmt_date')
+                        canceled_pmts = \
+                            Payment.objects.filter(pmt_method=card_obj.card_num,
+                                                               pmt_status='C')
+                        if pending_payments or canceled_pmts:
+                            paid_payment = Payment.objects.filter(pmt_method=
+                                                card_obj.card_num, pmt_status=
+                            'PA').order_by('-pmt_date')[0]
+
+                            if user_obj.pmt_option == 'N':
+                                if pending_payments:
+                                    pending_payments.update(pmt_status='C')
+                            elif user_obj.pmt_option == 'M':
+                                user_obj.is_subscribed = True
+                                new_pmt = Payment(
+                                    amount=MembershipPlan.objects.get(type='M').price,
+                                    pmt_date=paid_payment.pmt_date + \
+                                             relativedelta(months=1),
+                                    recur = 'Monthly',
+                                    edate = datetime.date.today() + \
+                                            relativedelta(years=1),
+                                    pmt_method = card_obj.card_num,
+                                    payer=user_obj.username,
+                                )
+                                if pending_payments:
+                                    print(pending_payments)
+                                    first_unpaid_pmt = pending_payments[0]
+                                    new_pmt.pmt_date = first_unpaid_pmt.pmt_date
+                                    new_pmt.edate = first_unpaid_pmt.edate
+                                    if old_pmt_option == 'Y':
+                                        pending_payments.delete()
+                                new_pmt.save()
+                            elif user_obj.pmt_option == 'Y':
+                                user_obj.is_subscribed = True
+                                new_pmt = Payment(
+                                    amount=MembershipPlan.objects.get(type='Y').price,
+                                    pmt_date=paid_payment.pmt_date
+                                             + relativedelta(years=1),
+                                    recur = 'Yearly',
+                                    edate = datetime.date.today()
+                                            + relativedelta(years=1),
+                                    pmt_method = card_obj.card_num,
+                                    payer=user_obj.username
+                                )
+                                if pending_payments:
+                                    first_unpaid_pmt = pending_payments[0]
+                                    new_pmt.pmt_date = first_unpaid_pmt.pmt_date
+                                    new_pmt.edate = first_unpaid_pmt.edate
+                                    print(f'{new_pmt.edate}')
+                                    if old_pmt_option == 'M':
+                                        pending_payments.delete()
+                                new_pmt.save()
+
             user_obj.save()
             serializer = CustomUserSerializer(user_obj)
             return Response(serializer.data)
@@ -72,14 +120,13 @@ class UpdateCardView(UpdateAPIView):
         data = request.data
 
         if card_obj.holder == self.request.user:
-            card_obj.card_num = data.get('card_num', card_obj.card_num)
             card_obj.billing_addr = data.get('billing_addr',
                                              card_obj.billing_addr)
             card_obj.expires_at = data.get('expires_at', card_obj.expires_at)
-            card_obj.cvv = data.get('cvv', card_obj.cvv)
-            card_obj.holder = data.get('holder', card_obj.holder)
 
             card_obj.save()
+            print(card_obj)
+
             serializer = CardSerializer(card_obj)
 
             return Response(serializer.data)
@@ -87,11 +134,24 @@ class UpdateCardView(UpdateAPIView):
                                   'card.'})
 
 
+class PaymentHistoryPagination(PageNumberPagination):
+    page_size=5
+
+
 class PaymentHistoryView(ListAPIView):
     permission_classes = [IsAuthenticated]
-    queryset = Payment.objects.filter()
     serializer_class = PaymentSerializer
+    pagination_class = PaymentHistoryPagination
 
+    def get_queryset(self):
+        # card_objs = Card.objects.filter(holder=self.request.user)
+        # payments = Payment.objects.none()
+        # if card_objs:
+        #     for card_obj in card_objs:
+        #         payments = payments | Payment.objects.filter(
+        #             pmt_method=card_obj.card_num)
+        payments = Payment.objects.filter(payer=self.request.user.username)
+        return payments.order_by('pmt_date')
 
 
 

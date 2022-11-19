@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from accounts.models import CustomUser, Card, Payment
 from datetime import date
-from dateutil import relativedelta
 
 
 class CustomUserSerializer(serializers.ModelSerializer):
@@ -40,6 +39,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
             last_name=validated_data["last_name"],
             phone_num=validated_data["phone_num"],
             avatar=validated_data["avatar"],
+            pmt_option=validated_data["pmt_option"],
         )
 
         user.set_password(validated_data["password"])
