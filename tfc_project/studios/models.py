@@ -11,7 +11,7 @@ class Studio(models.Model):
     name = models.CharField(max_length=50)
     address = models.TextField(max_length=500)
     geolocation = models.TextField(max_length=500)
-    postalcode = models.CharField(max_length=10)
+    postalcode = models.CharField(max_length=7)
     phonenumber = models.CharField(max_length=100)
     amenitiestype = models.TextField(max_length=500)
     amenitiesquantity = models.TextField(max_length=500)
