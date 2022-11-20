@@ -6,7 +6,6 @@ from rest_framework.response import Response
 from .serializers import CustomUserSerializer, CardSerializer, PaymentSerializer
 from .models import CustomUser, Card, Payment, MembershipPlan
 import datetime
-
 from classes.models import UserEnrolledClass
 
 
@@ -30,9 +29,12 @@ class EditProfileView(UpdateAPIView):
     serializer_class = CustomUserSerializer
 
     def patch(self, request, *args, **kwargs):
+        """Updates user profile. If users canceled subscription,
+        cancel all future payments."""
         user_obj = self.get_object()
         data = request.data
         if user_obj == self.request.user:
+            # update all fields
             user_obj.username = data.get('username', user_obj.username)
             user_obj.set_password = data.get('password', user_obj.password)
             user_obj.email = data.get('email', user_obj.email)
@@ -43,11 +45,17 @@ class EditProfileView(UpdateAPIView):
             old_pmt_option = user_obj.pmt_option
             user_obj.pmt_option = data.get('pmt_option',
                                            user_obj.pmt_option)
+            # if an user cancels subscription, change subscription status, also
+            # drop from any enrolled classes.
             if user_obj.pmt_option == 'N':
                 user_obj.is_subscribed = False
-                x = UserEnrolledClass.objects.filter(user_id=user_obj.id)
-                if x:
-                    x.delete()
+                enrolled_classes = UserEnrolledClass.objects.filter(
+                    user_id=user_obj.id)
+            if enrolled_classes:
+                enrolled_classes.delete()
+            # check if an user has pending payments or cancelled payments.
+            # If so, update them or create new ones to
+            # reflect the new plan option.
             if Card.objects.filter(holder=user_obj).exists():
                 card_objs = Card.objects.filter(holder=user_obj)
                 if card_objs:
@@ -63,14 +71,18 @@ class EditProfileView(UpdateAPIView):
                             paid_payment = Payment.objects.filter(pmt_method=
                                                 card_obj.card_num, pmt_status=
                             'PA').order_by('-pmt_date')[0]
-
+                            # if cancel plan, cancel all future payments
                             if user_obj.pmt_option == 'N':
                                 if pending_payments:
                                     pending_payments.update(pmt_status='C')
+                            # if change to monthly plan, update existing pending
+                            # payments
                             elif user_obj.pmt_option == 'M':
+                                # if no pending payments, create new ones.
                                 user_obj.is_subscribed = True
                                 new_pmt = Payment(
-                                    amount=MembershipPlan.objects.get(type='M').price,
+                                    amount=MembershipPlan.objects.get(type=
+                                                                    'M').price,
                                     pmt_date=paid_payment.pmt_date + \
                                              relativedelta(months=1),
                                     recur = 'Monthly',
@@ -79,6 +91,8 @@ class EditProfileView(UpdateAPIView):
                                     pmt_method = card_obj.card_num,
                                     payer=user_obj.username,
                                 )
+                                # else, update price and payment date to match
+                                # the new plan
                                 if pending_payments:
                                     print(pending_payments)
                                     first_unpaid_pmt = pending_payments[0]
@@ -87,10 +101,12 @@ class EditProfileView(UpdateAPIView):
                                     if old_pmt_option == 'Y':
                                         pending_payments.delete()
                                 new_pmt.save()
+                            # if change to yearly plan, update payments
                             elif user_obj.pmt_option == 'Y':
                                 user_obj.is_subscribed = True
                                 new_pmt = Payment(
-                                    amount=MembershipPlan.objects.get(type='Y').price,
+                                    amount=MembershipPlan.objects.get(type=
+                                                                    'Y').price,
                                     pmt_date=paid_payment.pmt_date
                                              + relativedelta(years=1),
                                     recur = 'Yearly',
@@ -115,6 +131,9 @@ class EditProfileView(UpdateAPIView):
 
 
 class UpdateCardView(UpdateAPIView):
+    """Only updates billing address and expiry date. Otherwise, users need to
+    register a new card.
+    """
 
     permission_classes = [IsAuthenticated]
     queryset = Card.objects.all()
@@ -149,12 +168,6 @@ class PaymentHistoryView(ListAPIView):
     pagination_class = PaymentHistoryPagination
 
     def get_queryset(self):
-        # card_objs = Card.objects.filter(holder=self.request.user)
-        # payments = Payment.objects.none()
-        # if card_objs:
-        #     for card_obj in card_objs:
-        #         payments = payments | Payment.objects.filter(
-        #             pmt_method=card_obj.card_num)
         payments = Payment.objects.filter(payer=self.request.user.username)
         return payments.order_by('pmt_date')
 
