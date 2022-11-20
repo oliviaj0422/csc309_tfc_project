@@ -27,5 +27,8 @@ urlpatterns = [
     path('account/<int:pk>/profile/edit/', EditProfileView.as_view()),
     path('account/<int:pk>/profile/update_card_info/', UpdateCardView.as_view()),
     path('account/payment_history/', PaymentHistoryView.as_view()),
+    path('classes/', include('classes.urls')),
+    path('studios/', include('studios.urls')),
+    path('', lambda r: redirect('/admin'))
 ]
 
