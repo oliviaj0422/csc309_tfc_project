@@ -14,32 +14,18 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import include, path
 from django.urls import path
-from django.urls import re_path
-from django.views.i18n import JavaScriptCatalog
 from accounts.views import CreateUserView, CreateCardView, EditProfileView, \
     UpdateCardView, PaymentHistoryView
 from rest_framework_simplejwt.views import TokenObtainPairView
-from django.shortcuts import redirect
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('classes/', include('classes.urls')),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('account/signup/', CreateUserView.as_view()),
     path('account/add_payment_method/', CreateCardView.as_view()),
     path('account/<int:pk>/profile/edit/', EditProfileView.as_view()),
     path('account/<int:pk>/profile/update_card_info/', UpdateCardView.as_view()),
-    path('studios/', include('studios.urls')),
     path('account/payment_history/', PaymentHistoryView.as_view()),
-    path('', lambda r: redirect('/admin'))
 ]
 
-js_info_dict = {
-    'packages': ('recurrence', ),
-}
-
-# jsi18n can be anything you like here
-urlpatterns += [
-    re_path(r'^jsi18n/$', JavaScriptCatalog.as_view(), js_info_dict),
-]
