@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from .serializers import CustomUserSerializer, CardSerializer, PaymentSerializer
 from .models import CustomUser, Card, Payment, MembershipPlan
 import datetime
-from classes.models import UserEnrolledClass
+# from classes.models import UserEnrolledClass
 
 
 class CreateUserView(CreateAPIView):
@@ -49,10 +49,10 @@ class EditProfileView(UpdateAPIView):
             # drop from any enrolled classes.
             if user_obj.pmt_option == 'N':
                 user_obj.is_subscribed = False
-                enrolled_classes = UserEnrolledClass.objects.filter(
-                    user_id=user_obj.id)
-            if enrolled_classes:
-                enrolled_classes.delete()
+            #     enrolled_classes = UserEnrolledClass.objects.filter(
+            #         user_id=user_obj.id)
+            # if enrolled_classes:
+            #     enrolled_classes.delete()
             # check if an user has pending payments or cancelled payments.
             # If so, update them or create new ones to
             # reflect the new plan option.

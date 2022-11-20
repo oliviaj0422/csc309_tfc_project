@@ -78,14 +78,14 @@ def card_post_save(sender, instance, created, *args, **kwargs):
         if Payment.objects.filter(payer=instance.holder.username,
                                   pmt_status='PD'):
             if Card.objects.filter(holder=instance.holder).exclude(
-                    card_num=instance.card_num).exists():
+                card_num=instance.card_num).exists():
                 old_cards = Card.objects.filter(holder=instance.holder).exclude(
                     card_num=instance.card_num)
                 pd_pmts = Payment.objects.none()
                 if old_cards:
                     for card in old_cards:
                         pd_pmts = pd_pmts | Payment.objects.filter(pmt_method=
-                                                                   card.card_num, pmt_status='PD')
+                                                card.card_num, pmt_status='PD')
                 pd_pmts.update(pmt_method=instance.card_num)
         else:
             amt = MembershipPlan.objects.get(
@@ -94,6 +94,7 @@ def card_post_save(sender, instance, created, *args, **kwargs):
             recurrence = 'Monthly'
             instance.holder.sub_edate = datetime.date.today() \
                                         + relativedelta(months=1)
+            instance.holder.save()
             if instance.holder.pmt_option == 'Y':
                 recurrence = 'Yearly'
                 instance.holder.sub_edate = datetime.date.today() \
@@ -108,7 +109,6 @@ def card_post_save(sender, instance, created, *args, **kwargs):
                 pmt_status='PA',
                 payer=instance.holder.username,
             )
-            instance.save()
             first_pmt.save()
 
 
@@ -131,7 +131,7 @@ class Payment(models.Model):
 
     recur = models.CharField(max_length=7, verbose_name = 'Recurrence',
                              default='Monthly',
-                             help_text='Please choose one of Monthly and Yearly')
+                            help_text='Please choose one of Monthly and Yearly')
     edate = models.DateField(verbose_name='End date',
                              default = datetime.date.today)
 
