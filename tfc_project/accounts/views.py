@@ -7,6 +7,8 @@ from .serializers import CustomUserSerializer, CardSerializer, PaymentSerializer
 from .models import CustomUser, Card, Payment, MembershipPlan
 import datetime
 
+from classes.models import UserEnrolledClass
+
 
 class CreateUserView(CreateAPIView):
     permission_classes = [AllowAny]
@@ -43,6 +45,9 @@ class EditProfileView(UpdateAPIView):
                                            user_obj.pmt_option)
             if user_obj.pmt_option == 'N':
                 user_obj.is_subscribed = False
+                x = UserEnrolledClass.objects.filter(user_id=user_obj.id)
+                if x:
+                    x.delete()
             if Card.objects.filter(holder=user_obj).exists():
                 card_objs = Card.objects.filter(holder=user_obj)
                 if card_objs:
