@@ -51,7 +51,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
 class CardSerializer(serializers.ModelSerializer):
     class Meta:
         model = Card
-        fields = ['card_num', 'billing_addr', 'expires_at', 'cvv',
+        fields = ['id', 'card_num', 'billing_addr', 'expires_at', 'cvv',
                   'holder']
 
     def validate(self, data):

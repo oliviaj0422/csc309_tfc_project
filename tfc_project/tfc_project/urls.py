@@ -19,7 +19,7 @@ from django.urls import path
 from django.urls import re_path
 from django.views.i18n import JavaScriptCatalog
 from accounts.views import CreateUserView, CreateCardView, EditProfileView, \
-    UpdateCardView
+    UpdateCardView, PaymentHistoryView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.shortcuts import redirect
 urlpatterns = [
@@ -29,8 +29,9 @@ urlpatterns = [
     path('account/signup/', CreateUserView.as_view()),
     path('account/add_payment_method/', CreateCardView.as_view()),
     path('account/<int:pk>/profile/edit/', EditProfileView.as_view()),
-    path('account/<int:pk>/profile/card_info/update/', UpdateCardView.as_view()),
+    path('account/<int:pk>/profile/update_card_info/', UpdateCardView.as_view()),
     path('studios/', include('studios.urls')),
+    path('account/payment_history/', PaymentHistoryView.as_view()),
     path('', lambda r: redirect('/admin'))
 ]
 

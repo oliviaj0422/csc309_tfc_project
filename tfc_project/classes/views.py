@@ -41,7 +41,6 @@ def get_weekday(x):
 
 
 class ShowClassInStudioView(ListAPIView):
-    permission_classes = [IsAuthenticated]
     pagination_class = PageNumberPagination
     serializer_class = ClassInstanceSerializer
 
@@ -60,10 +59,10 @@ class UserEnrolClass(APIView):
 
     def post(self, request, *args, **kwargs):
         class_id = request.POST.get('class_id', '')
-        current_time = timezone.now()
+        current_time = timezone.now().date()
         class_instance = get_object_or_404(ClassInstance, id=class_id)
-        if current_time < request.user.sub_edate:
-            if class_instance.start_time >= current_time and class_instance.space_availability > 0:
+        if current_time <= request.user.sub_edate:
+            if class_instance.start_time.date() >= current_time and class_instance.space_availability > 0:
                 class_instance.space_availability -= 1
                 class_instance.save()
                 UserEnrolledClass.objects.create(user_id=request.user.id,
@@ -85,8 +84,8 @@ class UserDeleteClass(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
-        current_time = timezone.now()
-        if current_time < request.user.sub_edate:
+        current_time = timezone.now().date()
+        if current_time <= request.user.sub_edate:
             class_id = request.POST.get('class_id', '')
             current_time = timezone.now()
             class_instance = get_object_or_404(ClassInstance, id=class_id)
@@ -101,7 +100,7 @@ class UserDeleteClass(APIView):
             else:
                 return Response({'details': 'deletion failed'})
         else:
-            Response({
+            return Response({
                 'details': 'Dropping class failed since the user is not '
                            'subscribed'})
 
