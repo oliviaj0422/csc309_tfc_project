@@ -27,7 +27,7 @@ urlpatterns = [
     path('classes/', include('classes.urls')),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('account/signup/', CreateUserView.as_view()),
-    path('account/payment_info/', CreateCardView.as_view()),
+    path('account/add_payment_method/', CreateCardView.as_view()),
     path('account/<int:pk>/profile/edit/', EditProfileView.as_view()),
     path('account/<int:pk>/profile/card_info/update/', UpdateCardView.as_view()),
     path('studios/', include('studios.urls')),

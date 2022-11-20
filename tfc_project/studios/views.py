@@ -33,7 +33,7 @@ class DistanceView(APIView):
             item['distance'] = (haversine((lat, lon), (_lat, _lon)))
 
         resp = {
-            'data':result
+            'Response':result
         }
         return Response(resp)
 
@@ -44,12 +44,12 @@ class StudioView(APIView):
         if request.method == 'GET':
             key, page = request.GET.get('key'), int(request.GET.get('page'))
         else:
-            return Http404()
-        namestudios = Studio.objects.filter(name=key).values()
+            return Response({'Error':'Error occurs, somewhere wrong'})
+        namestudios = Studio.objects.filter(name__contains=key).values()
         if len(namestudios) > 0:
             for item in namestudios:
                 result.append(item)
-        addressstudios = Studio.objects.filter(address=key).values()
+        addressstudios = Studio.objects.filter(address__contains=key).values()
         if len(addressstudios) > 0:
             for item in addressstudios:
                 result.append(item)
@@ -65,11 +65,9 @@ class StudioView(APIView):
         if len(amenitiestype) > 0:
             for item in amenitiestype:
                 result.append(item)
-        amenitiesquantity = Studio.objects.filter(amenitiesquantity__contains=key).values()
-        if len(amenitiesquantity) > 0:
-            for item in amenitiesquantity:
-                result.append(item)
         resp = {
             'data': result[((page - 1) * 5):(page * 5)]
         }
+        if result == []:
+            return Response({'Response': 'Nothing matched, check your input.'})
         return Response(resp)

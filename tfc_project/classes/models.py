@@ -4,6 +4,8 @@ from django.db import models
 # Create your models here.
 from django.db.models import CASCADE
 
+from studios.models import Studio
+
 
 def get_weekday(x):
     if x == 1:
@@ -32,11 +34,10 @@ class Class(models.Model):
     start_time = models.DateTimeField(help_text='This is the start time of the first instance of this class.')
     duration = models.DurationField()
     end_time = models.DateTimeField(help_text='Every instance of this class ends before end time.')
-    studio = models.CharField(max_length=100, null=False, blank=False,
-                              default="studio")
+    studio = models.ForeignKey(to=Studio, on_delete=CASCADE)
 
     def __str__(self):
-        return f'{self.name} in {self.studio} on {get_weekday(self.start_time.isoweekday())} from {self.start_time.strftime("%H:%M")} to {(self.start_time + self.duration).strftime("%H:%M")}'
+        return f'{self.name} in {self.studio.name} on {get_weekday(self.start_time.isoweekday())} from {self.start_time.strftime("%H:%M")} to {(self.start_time + self.duration).strftime("%H:%M")}'
 
     def save(self, *args, **kwargs):
         t1 = self.start_time
@@ -75,7 +76,7 @@ class ClassInstance(models.Model):
     is_cancelled = models.BooleanField(default=False)
 
     def __str__(self):
-        return f'{self.the_class.name} with id{self.id} in {self.the_class.studio} starting at {self.start_time.strftime("%H:%M")} on {self.start_time.strftime("%Y-%m-%d")} ({get_weekday(self.start_time.isoweekday())})'
+        return f'{self.the_class.name} with id{self.id} in {self.the_class.studio.name} starting at {self.start_time.strftime("%H:%M")} on {self.start_time.strftime("%Y-%m-%d")} ({get_weekday(self.start_time.isoweekday())})'
 
 
 class UserEnrolledClass(models.Model):

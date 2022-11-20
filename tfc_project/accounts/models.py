@@ -51,7 +51,7 @@ class CustomUser(AbstractUser):
     pmt_option = models.CharField(max_length=1, choices=PLAN_OPTS,
                                   verbose_name='Payment plan',
                                   default=PLAN_OPTS[2][0])
-    sub_edate = models.DateField(default = datetime.date.today)
+    sub_edate = models.DateField(default=datetime.date.today)
 
     def __str__(self):
         return f'{self.username} + {self.pmt_option} + {self.is_subscribed}'
@@ -78,14 +78,14 @@ def card_post_save(sender, instance, created, *args, **kwargs):
         if Payment.objects.filter(payer=instance.holder.username,
                                   pmt_status='PD'):
             if Card.objects.filter(holder=instance.holder).exclude(
-                card_num=instance.card_num).exists():
+                    card_num=instance.card_num).exists():
                 old_cards = Card.objects.filter(holder=instance.holder).exclude(
                     card_num=instance.card_num)
                 pd_pmts = Payment.objects.none()
                 if old_cards:
                     for card in old_cards:
                         pd_pmts = pd_pmts | Payment.objects.filter(pmt_method=
-                                                card.card_num, pmt_status='PD')
+                                                                   card.card_num, pmt_status='PD')
                 pd_pmts.update(pmt_method=instance.card_num)
         else:
             amt = MembershipPlan.objects.get(
@@ -96,7 +96,8 @@ def card_post_save(sender, instance, created, *args, **kwargs):
                                         + relativedelta(months=1)
             if instance.holder.pmt_option == 'Y':
                 recurrence = 'Yearly'
-                instance.holder.sub_edate = end_date
+                instance.holder.sub_edate = datetime.date.today() \
+                                            + relativedelta(years=1)
                 amt = MembershipPlan.objects.get(
                     type='Y').price
             first_pmt = Payment.objects.create(
@@ -107,6 +108,7 @@ def card_post_save(sender, instance, created, *args, **kwargs):
                 pmt_status='PA',
                 payer=instance.holder.username,
             )
+            instance.save()
             first_pmt.save()
 
 
@@ -129,7 +131,7 @@ class Payment(models.Model):
 
     recur = models.CharField(max_length=7, verbose_name = 'Recurrence',
                              default='Monthly',
-                            help_text='Please choose one of Monthly and Yearly')
+                             help_text='Please choose one of Monthly and Yearly')
     edate = models.DateField(verbose_name='End date',
                              default = datetime.date.today)
 

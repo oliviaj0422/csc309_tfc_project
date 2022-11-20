@@ -20,6 +20,8 @@ from classes.models import UserEnrolledClass
 
 from classes.serializers import ClassInstanceSerializer,UserEnrolledClassSerializer
 
+from studios.models import Studio
+
 
 def get_weekday(x):
     if x == 1:
@@ -44,13 +46,13 @@ class ShowClassInStudioView(ListAPIView):
     serializer_class = ClassInstanceSerializer
 
     def get_queryset(self):
-        studio = self.kwargs['studio']
+        studio = Studio.objects.get(name=self.kwargs['studio'])
         current_time = timezone.now()
         classes = ClassInstance.objects.filter(the_class__studio=studio,start_time__gte=current_time,is_cancelled=False).order_by('start_time')
         if classes:
             return classes
         else:
-            raise Http404
+            return Response({'details': 'Not found'})
 
 
 class UserEnrolClass(APIView):
@@ -60,30 +62,31 @@ class UserEnrolClass(APIView):
         class_id = request.POST.get('class_id', '')
         current_time = timezone.now()
         class_instance = get_object_or_404(ClassInstance, id=class_id)
-        #if request.user.is_subscribed:
-        if class_instance.start_time >= current_time and class_instance.space_availability > 0:
-            class_instance.space_availability -= 1
-            class_instance.save()
-            UserEnrolledClass.objects.create(user_id=request.user.id,
-                                             class_instance=class_instance,
-                                             class_instance_name=class_instance.the_class.name,
-                                             class_instance_start_time=class_instance.start_time,
-                                             class_instance_end_time=class_instance.end_time)
-            return Response({'details': 'successfully enrolled'})
+        if current_time < request.user.sub_edate:
+            if class_instance.start_time >= current_time and class_instance.space_availability > 0:
+                class_instance.space_availability -= 1
+                class_instance.save()
+                UserEnrolledClass.objects.create(user_id=request.user.id,
+                                                 class_instance=class_instance,
+                                                 class_instance_name=class_instance.the_class.name,
+                                                 class_instance_start_time=class_instance.start_time,
+                                                 class_instance_end_time=class_instance.end_time)
+                return Response({'details': 'successfully enrolled'})
+            else:
+                return Response({
+                    'details': 'enrolment failed because of start time and/or space availability'})
         else:
             return Response({
-                'details': 'enrolment failed because of start time and/or space availability'})
-        # else:
-        #     Response({
-        #                  'details': 'enrolment failed since the user is not '
-        #                             'subscribed'})
+                'details': 'Enrolment failed since the user is not '
+                           'subscribed'})
 
 
 class UserDeleteClass(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
-        #if request.user.is_subscribed:
+        current_time = timezone.now()
+        if current_time < request.user.sub_edate:
             class_id = request.POST.get('class_id', '')
             current_time = timezone.now()
             class_instance = get_object_or_404(ClassInstance, id=class_id)
@@ -97,10 +100,10 @@ class UserDeleteClass(APIView):
                 return Response({'details': 'successfully deleted'})
             else:
                 return Response({'details': 'deletion failed'})
-        # else:
-        #     Response({
-        #         'details': 'Dropping class failed since the user is not '
-        #                    'subscribed'})
+        else:
+            Response({
+                'details': 'Dropping class failed since the user is not '
+                           'subscribed'})
 
 class MyClassHistory(ListAPIView):
     permission_classes = [IsAuthenticated]
@@ -112,7 +115,7 @@ class MyClassHistory(ListAPIView):
         if enrolled_pairs:
             return enrolled_pairs
         else:
-            raise Http404
+            return Response({'details': 'Not found'})
 
 class MyClassSchedule(ListAPIView):
     permission_classes = [IsAuthenticated]
@@ -124,7 +127,7 @@ class MyClassSchedule(ListAPIView):
         if enrolled_pairs:
             return enrolled_pairs
         else:
-            raise Http404
+            return Response({'details': 'Not found'})
 
 
 class SearchOrFilterByClassNameView(ListAPIView):
@@ -132,11 +135,12 @@ class SearchOrFilterByClassNameView(ListAPIView):
     serializer_class = ClassInstanceSerializer
 
     def get_queryset(self):
-        the_class = ClassInstance.objects.filter(the_class__studio=self.kwargs['studio'],the_class__name=self.kwargs['class'],is_cancelled=False)
+        studio = Studio.objects.get(name=self.kwargs['studio'])
+        the_class = ClassInstance.objects.filter(the_class__studio=studio,the_class__name=self.kwargs['class'],is_cancelled=False)
         if the_class:
             return the_class
         else:
-            raise Http404
+            return Response({'details': 'Not found'})
 
 
 class SearchOrFilterByCoachView(ListAPIView):
@@ -144,11 +148,12 @@ class SearchOrFilterByCoachView(ListAPIView):
     serializer_class = ClassInstanceSerializer
 
     def get_queryset(self):
-        the_class = ClassInstance.objects.filter(the_class__studio=self.kwargs['studio'],the_class__coach=self.kwargs['coach'],is_cancelled=False)
+        studio = Studio.objects.get(name=self.kwargs['studio'])
+        the_class = ClassInstance.objects.filter(the_class__studio=studio,the_class__coach=self.kwargs['coach'],is_cancelled=False)
         if the_class:
             return the_class
         else:
-            raise Http404
+            return Response({'details': 'Not found'})
 
 
 class SearchOrFilterByDateView(ListAPIView):
@@ -156,11 +161,12 @@ class SearchOrFilterByDateView(ListAPIView):
     serializer_class = ClassInstanceSerializer
 
     def get_queryset(self):
-        the_class = ClassInstance.objects.filter(the_class__studio=self.kwargs['studio'],start_time__year=self.kwargs['year'],start_time__month=self.kwargs['month'],start_time__day=self.kwargs['day'],is_cancelled=False)
+        studio = Studio.objects.get(name=self.kwargs['studio'])
+        the_class = ClassInstance.objects.filter(the_class__studio=studio,start_time__year=self.kwargs['year'],start_time__month=self.kwargs['month'],start_time__day=self.kwargs['day'],is_cancelled=False)
         if the_class:
             return the_class
         else:
-            raise Http404
+            return Response({'details': 'Not found'})
 
 
 class SearchOrFilterByTimeRangeView(APIView):
@@ -171,7 +177,8 @@ class SearchOrFilterByTimeRangeView(APIView):
         minute2 = kwargs['minute2']
         t1 = datetime.time(hour1, minute1, 0)
         t2 = datetime.time(hour2, minute2, 0)
-        class_instances = ClassInstance.objects.filter(the_class__studio=kwargs['studio'])
+        studio = Studio.objects.get(name=self.kwargs['studio'])
+        class_instances = ClassInstance.objects.filter(the_class__studio=studio)
         if class_instances:
             i = 1
             result = {}
@@ -182,6 +189,6 @@ class SearchOrFilterByTimeRangeView(APIView):
             if result:
                 return Response(result)
             else:
-                raise Http404
+                return Response({'details': 'Not found'})
         else:
-            raise Http404
+            return Response({'details': 'Not found'})
