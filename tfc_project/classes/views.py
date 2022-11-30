@@ -105,28 +105,23 @@ class UserDeleteClass(APIView):
                            'subscribed'})
 
 class MyClassHistory(ListAPIView):
-    permission_classes = [IsAuthenticated]
+    #permission_classes = [IsAuthenticated]
     pagination_class = PageNumberPagination
     serializer_class = UserEnrolledClassSerializer
 
     def get_queryset(self):
         enrolled_pairs = UserEnrolledClass.objects.filter(user_id=self.request.user.id).order_by('class_instance__start_time')
-        if enrolled_pairs:
-            return enrolled_pairs
-        else:
-            return Response({'details': 'Not found'})
+        return enrolled_pairs
 
 class MyClassSchedule(ListAPIView):
-    permission_classes = [IsAuthenticated]
+    #permission_classes = [IsAuthenticated]
     pagination_class = PageNumberPagination
     serializer_class = UserEnrolledClassSerializer
 
     def get_queryset(self):
         enrolled_pairs = UserEnrolledClass.objects.filter(user_id=self.request.user.id,class_instance__is_cancelled=False).order_by('class_instance__start_time')
-        if enrolled_pairs:
-            return enrolled_pairs
-        else:
-            return Response({'details': 'Not found'})
+
+        return enrolled_pairs
 
 
 class SearchOrFilterByClassNameView(ListAPIView):
@@ -136,10 +131,9 @@ class SearchOrFilterByClassNameView(ListAPIView):
     def get_queryset(self):
         studio = Studio.objects.get(name=self.kwargs['studio'])
         the_class = ClassInstance.objects.filter(the_class__studio=studio,the_class__name=self.kwargs['class'],is_cancelled=False)
-        if the_class:
-            return the_class
-        else:
-            return Response({'details': 'Not found'})
+
+        return the_class
+
 
 
 class SearchOrFilterByCoachView(ListAPIView):
@@ -149,10 +143,8 @@ class SearchOrFilterByCoachView(ListAPIView):
     def get_queryset(self):
         studio = Studio.objects.get(name=self.kwargs['studio'])
         the_class = ClassInstance.objects.filter(the_class__studio=studio,the_class__coach=self.kwargs['coach'],is_cancelled=False)
-        if the_class:
-            return the_class
-        else:
-            return Response({'details': 'Not found'})
+        return the_class
+
 
 
 class SearchOrFilterByDateView(ListAPIView):
@@ -162,10 +154,10 @@ class SearchOrFilterByDateView(ListAPIView):
     def get_queryset(self):
         studio = Studio.objects.get(name=self.kwargs['studio'])
         the_class = ClassInstance.objects.filter(the_class__studio=studio,start_time__year=self.kwargs['year'],start_time__month=self.kwargs['month'],start_time__day=self.kwargs['day'],is_cancelled=False)
-        if the_class:
-            return the_class
-        else:
-            return Response({'details': 'Not found'})
+
+        return the_class
+
+
 
 
 class SearchOrFilterByTimeRangeView(APIView):

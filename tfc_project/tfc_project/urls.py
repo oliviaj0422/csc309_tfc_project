@@ -13,8 +13,11 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
+from django.shortcuts import redirect
+from django.urls import include, path
 from django.contrib import admin
-from django.urls import path
+
 from accounts.views import CreateUserView, CreateCardView, EditProfileView, \
     UpdateCardView, PaymentHistoryView
 from rest_framework_simplejwt.views import TokenObtainPairView
