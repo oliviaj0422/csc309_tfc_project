@@ -1,10 +1,14 @@
 import './App.css';
 import NavBar from './components/NavBarElem';
+
 import {BrowserRouter, Routes, Route} from 'react-router-dom';
 import { useState, useEffect, createContext } from 'react';
 import { LoginContext } from './Contexts/LoginContext';
 import Login from './pages/Login';
 import Memberships from './pages/Memberships';
+
+import GetClasses from './components/GetClasses/GetClasses';
+
 
 function App() {
   const [loggedIn, setLoggedIn] = useState(
@@ -18,6 +22,7 @@ function App() {
 }
 
   return (
+
     <LoginContext.Provider value={[loggedIn, changeLoggedIn]}>
       <BrowserRouter>
         <NavBar /> <br />
@@ -27,6 +32,9 @@ function App() {
         </Routes>
       </BrowserRouter>
     </LoginContext.Provider>
+
+    <GetClasses />
+
   );
 }
 

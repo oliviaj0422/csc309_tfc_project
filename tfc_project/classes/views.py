@@ -46,12 +46,14 @@ class ShowClassInStudioView(ListAPIView):
 
     def get_queryset(self):
         studio = Studio.objects.get(name=self.kwargs['studio'])
-        current_time = timezone.now()
-        classes = ClassInstance.objects.filter(the_class__studio=studio,start_time__gte=current_time,is_cancelled=False).order_by('start_time')
-        if classes:
+        if studio:
+            current_time = timezone.now()
+            classes = ClassInstance.objects.filter(the_class__studio=studio,start_time__gte=current_time,is_cancelled=False).order_by('start_time')
+            
             return classes
         else:
-            return Response({'details': 'Not found'})
+            return Http404
+        
 
 
 class UserEnrolClass(APIView):

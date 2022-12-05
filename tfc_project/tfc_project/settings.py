@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     #'recurrence',
     'classes',
     'studios.apps.StudiosConfig',
+    'corsheaders'
 ]
 
 AUTH_USER_MODEL = 'accounts.CustomUser'
@@ -64,6 +65,11 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',    
+]
+
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',
 ]
 
 ROOT_URLCONF = 'tfc_project.urls'
