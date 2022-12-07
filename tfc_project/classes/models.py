@@ -65,7 +65,7 @@ class Class(models.Model):
 
 
 class ClassInstance(models.Model):
-    the_class = models.ForeignKey(to=Class, on_delete=CASCADE)
+    the_class = models.ForeignKey(to=Class, on_delete=CASCADE, unique=True)
     class_name = models.CharField(max_length=200)
     description = models.CharField(max_length=200)
     coach = models.CharField(max_length=200)

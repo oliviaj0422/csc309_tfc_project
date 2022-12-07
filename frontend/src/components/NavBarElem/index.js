@@ -14,13 +14,22 @@ const NavBar = () => {
         </NavLogo>
         <NavMenu>
           <NavLink to="/studios">
-            STUDIOS
+            Studios
           </NavLink>
           <NavLink to="/classes">
-            CLASSES
+            Classes
+          </NavLink>
+          <NavLink to="/search_classes">
+            SearchClasses
           </NavLink>
           <NavLink to="/memberships">
-            MEMBERSHIP
+            Membership
+          </NavLink>
+          <NavLink to="/my_schedule">
+            MySchedule
+          </NavLink>
+          <NavLink to="/my_class_history">
+            MyClassHistory
           </NavLink>
           <NavBtn>
             <NavBtnLink to="/register">JOIN US</NavBtnLink>
