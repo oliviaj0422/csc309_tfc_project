@@ -71,3 +71,4 @@ class MembershipPlanSerializer(serializers.ModelSerializer):
     class Meta:
         model = MembershipPlan
         fields = '__all__'
+
