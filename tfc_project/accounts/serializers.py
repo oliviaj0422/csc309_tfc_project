@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from accounts.models import CustomUser, Card, Payment
+from accounts.models import CustomUser, Card, MembershipPlan, Payment
 from datetime import date
 
 
@@ -66,3 +66,8 @@ class PaymentSerializer(serializers.ModelSerializer):
         model = Payment
         fields = '__all__'
 
+
+class MembershipPlanSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MembershipPlan
+        fields = '__all__'

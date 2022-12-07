@@ -1,33 +1,38 @@
 import React, { Component } from "react";
 import { useEffect, useState } from "react";
-import "./style.css";
-import Input from "../Input";
 
-const GetClasses = () => {
+const MySchedule = () => {
   const [classes, setClasses] = useState([]);
 
-  //const [query, setQuery] = useState({ page: 1, studioName: "" });
-  const [studioName, setStudioName] = useState("");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [classID, setClassID] = useState("");
-  const [enrol, setEnrol] = useState(0);
-  const [enrolInfo, setEnrolInfo] = useState("");
-  const [enrol1, setEnrol1] = useState(0);
+  const [drop, setDrop] = useState(0);
+  const [dropInfo, setDropInfo] = useState("");
+  const [drop1, setDrop1] = useState(0);
 
   useEffect(() => {
-    fetch(
-      `http://127.0.0.1:8000/classes/${studioName}/get_classes/?page=${page}`
-    )
-      .then((res) => res.json())
-      .then((json) => {
-        setClasses(json.results);
-        setTotalPages(json.count / 10);
+    fetch(`http://127.0.0.1:8000/classes/my_class_schedule/?page=${page}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("access"),
+      },
+    })
+      .then((response) => {
+        return response.json();
+      })
+      .then((data) => {
+        setClasses(data.results);
+        setTotalPages(data.count / 10);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
       });
-  }, [studioName, page, classes]);
+  }, [page, classes]);
 
   useEffect(() => {
-    fetch(`http://127.0.0.1:8000/classes/enrol_class/${classID}/`, {
+    fetch(`http://127.0.0.1:8000/classes/drop_class/${classID}/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -39,15 +44,15 @@ const GetClasses = () => {
         return response.json();
       })
       .then((data) => {
-        setEnrolInfo(data.detail);
+        setDropInfo(data.detail);
       })
       .catch((error) => {
         console.error("Error:", error);
       });
-  }, [enrol]);
+  }, [drop]);
 
   useEffect(() => {
-    fetch(`http://127.0.0.1:8000/classes/enrol_all_future_classes/${classID}/`, {
+    fetch(`http://127.0.0.1:8000/classes/drop_all_future_classes/${classID}/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -59,59 +64,45 @@ const GetClasses = () => {
         return response.json();
       })
       .then((data) => {
-        console.log(data);
-        setEnrolInfo(data.detail);
+        setDropInfo(data.detail);
       })
       .catch((error) => {
         console.error("Error:", error);
       });
-  }, [enrol1]);
+  }, [drop1]);
 
   const click = () => {
-    if (enrol === 0) setEnrol(1);
-    else setEnrol(0);
+    if (drop === 0) setDrop(1);
+    else setDrop(0);
   };
-
   const click1 = () => {
-    if (enrol1 === 0) setEnrol1(1);
-    else setEnrol1(0);
+    if (drop1 === 0) setDrop1(1);
+    else setDrop1(0);
   };
 
   return (
     <React.Fragment>
-
-      <h3>Studio Name</h3>
-
-      <input
-        value={studioName}
-        onChange={(event) => setStudioName(event.target.value)}
-      />
-
-      <h4>ClassID of the class that you want to enrol</h4>
+      <h4>instance id of the class that you want to drop</h4>
       <input
         value={classID}
         onChange={(event) => setClassID(event.target.value)}
       />
 
       <button className="btn btn-primary btn-sm m-2" onClick={click}>
-        Enrol
+        Drop
       </button>
 
       <button className="btn btn-primary btn-sm m-2" onClick={click1}>
-        Enrol all fure occurrences of the class 
+        Drop all future occurences of the class
       </button>
 
-      <h4>{enrolInfo}</h4>
+      <h4>{dropInfo}</h4>
 
       <table>
         <thead>
           <tr>
-            <th>id</th>
             <th>class name</th>
-            <th>description</th>
-            <th>coach</th>
-            <th>keywords</th>
-            <th>space availability</th>
+            <th>instance id</th>
             <th>start time</th>
             <th>end time</th>
           </tr>
@@ -119,14 +110,10 @@ const GetClasses = () => {
         <tbody>
           {classes.map((classs) => (
             <tr key={classs.id}>
-              <td>{classs.id}</td>
-              <td>{classs.class_name}</td>
-              <td>{classs.description}</td>
-              <td>{classs.coach}</td>
-              <td>{classs.keywords}</td>
-              <td>{classs.space_availability}</td>
-              <td>{classs.start_time}</td>
-              <td>{classs.end_time}</td>
+              <td>{classs.class_instance_name}</td>
+              <td>{classs.class_instance}</td>
+              <td>{classs.class_instance_start_time}</td>
+              <td>{classs.class_instance_end_time}</td>
             </tr>
           ))}
         </tbody>
@@ -153,8 +140,7 @@ const GetClasses = () => {
         <></>
       )}
     </React.Fragment>
-    
   );
 };
 
-export default GetClasses;
+export default MySchedule;

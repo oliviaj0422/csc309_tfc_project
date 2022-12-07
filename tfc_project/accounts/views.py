@@ -3,10 +3,11 @@ from rest_framework.generics import ListAPIView, CreateAPIView, UpdateAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from .serializers import CustomUserSerializer, CardSerializer, PaymentSerializer
+from .serializers import CustomUserSerializer, CardSerializer, \
+    MembershipPlanSerializer, PaymentSerializer
 from .models import CustomUser, Card, Payment, MembershipPlan
 import datetime
-# from classes.models import UserEnrolledClass
+from classes.models import UserEnrolledClass
 
 
 class CreateUserView(CreateAPIView):
@@ -49,10 +50,10 @@ class EditProfileView(UpdateAPIView):
             # drop from any enrolled classes.
             if user_obj.pmt_option == 'N':
                 user_obj.is_subscribed = False
-            #     enrolled_classes = UserEnrolledClass.objects.filter(
-            #         user_id=user_obj.id)
-            # if enrolled_classes:
-            #     enrolled_classes.delete()
+                enrolled_classes = UserEnrolledClass.objects.filter(
+                    user_id=user_obj.id)
+                if enrolled_classes:
+                    enrolled_classes.delete()
             # check if an user has pending payments or cancelled payments.
             # If so, update them or create new ones to
             # reflect the new plan option.
@@ -158,18 +159,22 @@ class UpdateCardView(UpdateAPIView):
                                   'card.'})
 
 
-class PaymentHistoryPagination(PageNumberPagination):
+class ListPagination(PageNumberPagination):
     page_size=5
 
 
 class PaymentHistoryView(ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = PaymentSerializer
-    pagination_class = PaymentHistoryPagination
+    pagination_class = ListPagination
 
     def get_queryset(self):
         payments = Payment.objects.filter(payer=self.request.user.username)
         return payments.order_by('pmt_date')
 
+
+class MembershipView(ListAPIView):
+    serializer_class = MembershipPlanSerializer
+    pagination_class = ListPagination
 
 

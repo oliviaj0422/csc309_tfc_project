@@ -13,13 +13,11 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-
+from django.contrib import admin
 from django.shortcuts import redirect
 from django.urls import include, path
-from django.contrib import admin
-
 from accounts.views import CreateUserView, CreateCardView, EditProfileView, \
-    UpdateCardView, PaymentHistoryView
+    UpdateCardView, PaymentHistoryView, MembershipView
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 urlpatterns = [
@@ -30,6 +28,7 @@ urlpatterns = [
     path('account/<int:pk>/profile/edit/', EditProfileView.as_view()),
     path('account/<int:pk>/profile/update_card_info/', UpdateCardView.as_view()),
     path('account/payment_history/', PaymentHistoryView.as_view()),
+    path('memberships/', MembershipView.as_view()),
     path('classes/', include('classes.urls')),
     path('studios/', include('studios.urls')),
     path('', lambda r: redirect('/admin'))

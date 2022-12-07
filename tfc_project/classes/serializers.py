@@ -11,4 +11,6 @@ class ClassInstanceSerializer(ModelSerializer):
 class UserEnrolledClassSerializer(ModelSerializer):
     class Meta:
         model = UserEnrolledClass
-        fields=['class_instance_name','class_instance','class_instance_start_time','class_instance_end_time']
+        fields=['id','class_instance_name','class_instance','class_instance_start_time','class_instance_end_time']
+        
+

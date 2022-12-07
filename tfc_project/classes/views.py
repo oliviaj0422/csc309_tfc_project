@@ -45,14 +45,13 @@ class ShowClassInStudioView(ListAPIView):
     serializer_class = ClassInstanceSerializer
 
     def get_queryset(self):
-        studio = Studio.objects.get(name=self.kwargs['studio'])
-        if studio:
-            current_time = timezone.now()
-            classes = ClassInstance.objects.filter(the_class__studio=studio,start_time__gte=current_time,is_cancelled=False).order_by('start_time')
-            
-            return classes
-        else:
-            return Http404
+        studio = Studio.objects.filter(name=self.kwargs['studio']).first()
+        
+        current_time = timezone.now()
+        classes = ClassInstance.objects.filter(the_class__studio=studio,start_time__gte=current_time,is_cancelled=False).order_by('start_time')
+        
+        return classes
+
         
 
 
@@ -60,26 +59,66 @@ class UserEnrolClass(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
-        class_id = request.POST.get('class_id', '')
+        
+        class_id = self.kwargs['class_id']
         current_time = timezone.now().date()
         class_instance = get_object_or_404(ClassInstance, id=class_id)
+        user_class = UserEnrolledClass.objects.filter(class_instance=class_instance)
         if current_time <= request.user.sub_edate:
-            if class_instance.start_time.date() >= current_time and class_instance.space_availability > 0:
-                class_instance.space_availability -= 1
-                class_instance.save()
-                UserEnrolledClass.objects.create(user_id=request.user.id,
-                                                 class_instance=class_instance,
-                                                 class_instance_name=class_instance.the_class.name,
-                                                 class_instance_start_time=class_instance.start_time,
-                                                 class_instance_end_time=class_instance.end_time)
-                return Response({'details': 'successfully enrolled'})
+            if not user_class:
+                if class_instance.start_time.date() >= current_time and class_instance.space_availability > 0:
+                    class_instance.space_availability -= 1
+                    class_instance.save()
+                    UserEnrolledClass.objects.create(user_id=request.user.id,
+                                                    class_instance=class_instance,
+                                                    class_instance_name=class_instance.the_class.name,
+                                                    class_instance_start_time=class_instance.start_time,
+                                                    class_instance_end_time=class_instance.end_time)
+                    return JsonResponse({'detail': 'successfully enrolled'})
+                else:
+                    return JsonResponse({
+                        'detail': 'enrolment failed because of start time and/or space availability'})
             else:
-                return Response({
-                    'details': 'enrolment failed because of start time and/or space availability'})
+                return JsonResponse({'detail': 'Enrolment failed since the user has enrolled this class instance'})
         else:
-            return Response({
-                'details': 'Enrolment failed since the user is not '
+            return JsonResponse({
+                'detail': 'Enrolment failed since the user is not '
                            'subscribed'})
+
+class UserEnrolAllFutureClasses(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        class_id = self.kwargs['class_id']
+        current_time = timezone.now().date()
+        the_class_instance = ClassInstance.objects.filter(id=class_id).first()
+        if current_time <= request.user.sub_edate:
+            if the_class_instance:
+                the_class = the_class_instance.the_class
+                class_instances_needed = ClassInstance.objects.filter(the_class=the_class, is_cancelled=False)
+                flag = False
+                for class_instance in class_instances_needed:
+                    user_class = UserEnrolledClass.objects.filter(class_instance=class_instance)
+                    if class_instance.start_time.date() >= current_time and class_instance.space_availability > 0 and (not user_class):
+                        flag = True
+                        class_instance.space_availability -= 1
+                        class_instance.save()
+                        UserEnrolledClass.objects.create(user_id=request.user.id,
+                                                        class_instance=class_instance,
+                                                        class_instance_name=class_instance.the_class.name,
+                                                        class_instance_start_time=class_instance.start_time,
+                                                        class_instance_end_time=class_instance.end_time)
+                if flag:
+                    return JsonResponse({'detail': 'successfully enrolled'})
+                else:
+                    return JsonResponse({'detail':'Enrolment failed since no required class instances are found'})
+            else:
+                return JsonResponse({'detail': 'Enrolment failed since no required class instances are found'})
+        else:
+            return JsonResponse({
+                'detail': 'Enrolment failed since the user is not '
+                           'subscribed'})
+
 
 
 class UserDeleteClass(APIView):
@@ -88,7 +127,7 @@ class UserDeleteClass(APIView):
     def post(self, request, *args, **kwargs):
         current_time = timezone.now().date()
         if current_time <= request.user.sub_edate:
-            class_id = request.POST.get('class_id', '')
+            class_id = self.kwargs['class_id']
             current_time = timezone.now()
             class_instance = get_object_or_404(ClassInstance, id=class_id)
             user_class_instance = get_object_or_404(UserEnrolledClass,
@@ -98,16 +137,47 @@ class UserDeleteClass(APIView):
                 user_class_instance.delete()
                 class_instance.space_availability += 1
                 class_instance.save()
-                return Response({'details': 'successfully deleted'})
+                return JsonResponse({'detail': 'successfully dropped'})
             else:
-                return Response({'details': 'deletion failed'})
+                return JsonResponse({'detail': 'Dropping the class failed'})
         else:
-            return Response({
-                'details': 'Dropping class failed since the user is not '
+            return JsonResponse({
+                'detail': 'Dropping the class failed since the user is not '
+                           'subscribed'})
+
+class DropAllFutureClasses(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        class_id = self.kwargs['class_id']
+        current_time = timezone.now().date()
+        the_class_instance = ClassInstance.objects.filter(id=class_id).first()
+        if current_time <= request.user.sub_edate:
+            if the_class_instance:
+                the_class = the_class_instance.the_class
+                class_instances_needed = ClassInstance.objects.filter(the_class=the_class, is_cancelled=False)
+                flag = False
+                t = timezone.now()
+                for class_instance in class_instances_needed:
+                    user_class_instance = UserEnrolledClass.objects.filter(class_instance=class_instance,user_id=request.user.id).first()
+                    if class_instance.start_time > t and user_class_instance:
+                        user_class_instance.delete()
+                        class_instance.space_availability += 1
+                        class_instance.save()
+                        flag  =True 
+                if flag:
+                    return JsonResponse({'detail': 'successfully dropped'})
+                else:
+                    return JsonResponse({'detail':'Dropping classes failed since no required class instances are found'})
+            else:
+                return JsonResponse({'detail': 'Dropping classes failed since no required class instances are found'})
+        else:
+            return JsonResponse({
+                'detail': 'Dropping classes failed since the user is not '
                            'subscribed'})
 
 class MyClassHistory(ListAPIView):
-    #permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     pagination_class = PageNumberPagination
     serializer_class = UserEnrolledClassSerializer
 
@@ -116,7 +186,7 @@ class MyClassHistory(ListAPIView):
         return enrolled_pairs
 
 class MyClassSchedule(ListAPIView):
-    #permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     pagination_class = PageNumberPagination
     serializer_class = UserEnrolledClassSerializer
 
@@ -173,15 +243,15 @@ class SearchOrFilterByTimeRangeView(APIView):
         studio = Studio.objects.get(name=self.kwargs['studio'])
         class_instances = ClassInstance.objects.filter(the_class__studio=studio)
         if class_instances:
-            i = 1
-            result = {}
+            
+            result = []
             for c in class_instances:
                 if c.start_time.time() >= t1 and c.end_time.time()<=t2:
-                    result[i] = f'{c.the_class.name} with id{c.id}'
-                    i += 1
+                    result.append( f'{c.the_class.name} with id{c.id} (from {c.start_time} to {c.end_time})')                   
             if result:
-                return Response(result)
+                result1 = {'detail': result}
+                return JsonResponse(result1)
             else:
-                return Response({'details': 'Not found'})
+                return JsonResponse({'detail': []})
         else:
-            return Response({'details': 'Not found'})
+            return JsonResponse({'detail': []})
