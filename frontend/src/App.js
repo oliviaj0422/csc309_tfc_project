@@ -1,6 +1,7 @@
 import './App.css';
 import NavBar from './components/NavBarElem';
 
+
 import SearchClasses from './components/SearchClasses/SearchClasses';
 import MyClassHistory from './components/MyClassHistory/MyClassHistory';
 import GetClasses from './components/GetClasses/GetClasses';
@@ -10,6 +11,7 @@ import { useState, useEffect, createContext } from 'react';
 import { LoginContext } from './Contexts/LoginContext';
 import Login from './AccountPages/Login';
 import Memberships from './AccountPages/Memberships';
+
 
 
 
@@ -26,7 +28,6 @@ function App() {
 
   return (
 
-    
 
     <LoginContext.Provider value={[loggedIn, changeLoggedIn]}>
       <BrowserRouter>
@@ -41,6 +42,7 @@ function App() {
         </Routes>
       </BrowserRouter>
     </LoginContext.Provider>
+
 
   );
 }
