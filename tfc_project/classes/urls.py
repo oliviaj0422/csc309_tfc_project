@@ -5,7 +5,7 @@ from classes.views import ShowClassInStudioView,UserEnrolClass,MyClassHistory,My
 app_name = 'classes'
 
 urlpatterns = [
-    path('<str:studio>/get_classes/', ShowClassInStudioView.as_view()),
+    path('get_classes', ShowClassInStudioView.as_view()),
     path('enrol_class/<int:class_id>/', UserEnrolClass.as_view()),
     path('enrol_all_future_classes/<int:class_id>/', UserEnrolAllFutureClasses.as_view()),
     path('my_class_history/', MyClassHistory.as_view()),

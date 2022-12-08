@@ -10,6 +10,8 @@ const MySchedule = () => {
   const [drop, setDrop] = useState(0);
   const [dropInfo, setDropInfo] = useState("");
   const [drop1, setDrop1] = useState(0);
+  const [y, setY] = useState(0);
+  const [y1, setY1] = useState(0);
 
   useEffect(() => {
     fetch(`http://127.0.0.1:8000/classes/my_class_schedule/?page=${page}`, {
@@ -29,7 +31,7 @@ const MySchedule = () => {
       .catch((error) => {
         console.error("Error:", error);
       });
-  }, [page, classes]);
+  }, [page, y, y1]);
 
   useEffect(() => {
     fetch(`http://127.0.0.1:8000/classes/drop_class/${classID}/`, {
@@ -45,6 +47,9 @@ const MySchedule = () => {
       })
       .then((data) => {
         setDropInfo(data.detail);
+        if (y === 0) setY(1);
+        else setY(0);
+        
       })
       .catch((error) => {
         console.error("Error:", error);
@@ -65,6 +70,8 @@ const MySchedule = () => {
       })
       .then((data) => {
         setDropInfo(data.detail);
+        if (y1 === 0) setY1(1);
+        else setY1(0);
       })
       .catch((error) => {
         console.error("Error:", error);
