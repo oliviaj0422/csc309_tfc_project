@@ -13,7 +13,7 @@ class Studio(models.Model):
                                help_text = 'Please seperate street name, city, and province by comma.')
     geolocation = models.TextField(max_length=500, verbose_name = 'longitude, latitude',
                                    help_text = 'Please seperate longitude and latitude by '
-                                               'comma. Eg. 121.1111, 90.28')
+                                               'comma. Eg. 55.854261,-4.234524')
     postalcode = models.CharField(max_length=7, verbose_name = 'Postal Code',
                                   help_text = 'Eg. M5S 1C6')
     phonenumber = models.CharField(max_length=10, verbose_name = 'Phone Number',

@@ -40,19 +40,37 @@ def get_weekday(x):
         return 'Sunday'
 
 
-class ShowClassInStudioView(ListAPIView):
-    pagination_class = PageNumberPagination
-    serializer_class = ClassInstanceSerializer
+# class ShowClassInStudioView(ListAPIView):
+#     pagination_class = PageNumberPagination
+#     serializer_class = ClassInstanceSerializer
 
-    def get_queryset(self):
-        studio = Studio.objects.filter(name=self.kwargs['studio']).first()
+#     def get_queryset(self):
+#         studio = Studio.objects.filter(name=self.kwargs['studio']).first()
         
-        current_time = timezone.now()
-        classes = ClassInstance.objects.filter(the_class__studio=studio,start_time__gte=current_time,is_cancelled=False).order_by('start_time')
+#         current_time = timezone.now()
+#         classes = ClassInstance.objects.filter(the_class__studio=studio,start_time__gte=current_time,is_cancelled=False).order_by('start_time')
         
-        return classes
+#         return classes
 
-        
+class ShowClassInStudioView(APIView):
+    def get(self, request, *args, **kwargs):
+        cls_id = request.GET.get('id', None)
+        # print(ClassInstance.objects.all())
+        if cls_id:
+            classes =Class.objects.all() 
+            # classes = ClassInstance.objects.filter(the_class__studio=cls_id,start_time__gte=current_time,is_cancelled=False).order_by('start_time')
+        else:
+            # classes = Class.objects.all()
+            classes = list(map(dict,Studio.objects.all()))
+        if classes:
+            resp = {
+            'data':classes
+            }
+            print(resp)
+            return  Response(resp)
+        else:
+            print(2)
+            return Response({'details': 'Not found'})       
 
 
 class UserEnrolClass(APIView):

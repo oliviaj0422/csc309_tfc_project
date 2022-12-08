@@ -13,9 +13,6 @@ const NavBar = () => {
             <Logo src={logo} alt="logo"></Logo>
         </NavLogo>
         <NavMenu>
-          <NavLink to="/studios">
-            Studios
-          </NavLink>
           <NavLink to="/classes">
             Classes
           </NavLink>
