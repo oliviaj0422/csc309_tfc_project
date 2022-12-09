@@ -29,39 +29,41 @@ const MyClassHistory = () => {
 
   return (
     <React.Fragment>
-      <h2>My Class History</h2>
+      <center>
+        <h2>My Class History</h2>
 
-      <table>
-        <thead>
-          <tr>
-            <th>class name</th>
-            <th>instance id</th>
-            <th>start time</th>
-            <th>end time</th>
-          </tr>
-        </thead>
-        <tbody>
-          {classes.map((classs) => (
-            <tr key={classs.id}>
-              <td>{classs.class_instance_name}</td>
-              <td>{classs.class_instance}</td>
-              <td>{classs.class_instance_start_time}</td>
-              <td>{classs.class_instance_end_time}</td>
+        <table>
+          <thead>
+            <tr>
+              <th>class name</th>
+              <th>instance id</th>
+              <th>start time</th>
+              <th>end time</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {classes.map((classs) => (
+              <tr key={classs.id}>
+                <td>{classs.class_instance_name}</td>
+                <td>{classs.class_instance}</td>
+                <td>{classs.class_instance_start_time}</td>
+                <td>{classs.class_instance_end_time}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
-      {page > 1 ? (
-        <button className="btn btn-primary btn-sm m-1" onClick={() => setPage(page - 1)}>prev</button>
-      ) : (
-        <></>
-      )}
-      {page < totalPages ? (
-        <button className="btn btn-primary btn-sm m-1" onClick={() => setPage(page + 1)}>next</button>
-      ) : (
-        <></>
-      )}
+        {page > 1 ? (
+          <button className="btn btn-primary btn-sm m-1" onClick={() => setPage(page - 1)}>prev</button>
+        ) : (
+          <></>
+        )}
+        {page < totalPages ? (
+          <button className="btn btn-primary btn-sm m-1" onClick={() => setPage(page + 1)}>next</button>
+        ) : (
+          <></>
+        )}
+      </center>
     </React.Fragment>
   );
 };
