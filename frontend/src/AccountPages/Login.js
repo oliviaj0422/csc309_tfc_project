@@ -1,11 +1,19 @@
 import { baseUrl } from "../base_url";
-import { useState, useEffect, useContext } from 'react';
+import { useState, useContext } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { LoginContext } from "../Contexts/LoginContext";
+import { Button } from 'react-bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import "../App.css";
 
 export default function Login() {
     const [loggedIn, setLoggedIn] = useContext(LoginContext);
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
+
+    const location = useLocation();
+    const navigate = useNavigate();
 
     function login(e){
         e.preventDefault();
@@ -21,25 +29,39 @@ export default function Login() {
             }),
         })
             .then((response) => {
+                if (response.ok) {
+                    setError("");
+                    navigate(
+                        location?.state?.previousUrl
+                            ? location.state.previousUrl
+                            : '/profile'
+                    );
+                }
+                else if (response.status === 401) {
+                    setError("Invalid username and/or password. Please try again.")
+                }
                 return response.json();
             })
             .then((data) => {
                 localStorage.setItem('access', data.access);
-                setLoggedIn(true);
-                // navigate(
-                //     location?.state?.previousUrl
-                //         ? location.state.previousUrl
-                //         : '/customers'
-                // );
+                localStorage.setItem('id', data.id);
+                if (data.access) {
+                    // show success message (popup? a sentence? idk)
+                    setLoggedIn(true);
+                }
             })
-            .catch((error) => {
-                console.error('Error:', error);
-            });
 
     }
     return (
+        
         <form className="m-2 w-full max-w-sm" id="customer" onSubmit={login}>
             <div className="md:flex md:items-center mb-6">
+                <h3>Log In</h3>
+                <br />
+                <div className="error-msg">
+                <h5 style={{color: "red"}}>{error}</h5>
+            </div>
+            <br/>
                 <div className="md:w-1/4">
                     <label htmlFor="username">Username</label>
                 </div>
@@ -48,15 +70,17 @@ export default function Login() {
                     <input
                         className="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500"
                         id="username"
-                        type="text"
+                        type="username"
                         value={username}
                         onChange={(e) => {
                             setUsername(e.target.value);
                         }}
+                        placeholder="Enter your username"
+                        style={{"textAlign": "center"}}
                     />
                 </div>
             </div>
-
+            <br />
             <div className="md:flex md:items-center mb-6">
                 <div className="md:w-1/4">
                     <label htmlFor="password">Password</label>
@@ -71,12 +95,15 @@ export default function Login() {
                         onChange={(e) => {
                             setPassword(e.target.value);
                         }}
+                        placeholder="Enter your password"
+                        style={{"textAlign": "center"}}
                     />
                 </div>
             </div>
-            <button className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded">
-                Login
-            </button>
+            <br/>
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end" style={{"margin-right": "200px", "margin-bottom": "200px"}}>
+                <button class="btn btn-primary me-md-2" type="submit">Sign in</button>
+            </div>
         </form>
     );
 }
