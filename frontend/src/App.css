@@ -1,8 +1,8 @@
-/* .App {
+.App {
   text-align: center;
 }
 
-.App-logo {
+/* .App-logo {
   height: 40vmin;
   pointer-events: none;
 }
@@ -11,7 +11,7 @@
   .App-logo {
     animation: App-logo-spin infinite 20s linear;
   }
-}
+} */
 
 .App-header {
   background-color: #282c34;
@@ -35,7 +35,7 @@
   to {
     transform: rotate(360deg);
   }
-} */
+}
 
 @import url('https://fonts.googleapis.com/css2?family=Lato&display=swap');
 * {
@@ -44,3 +44,4 @@
   margin: 0;
   padding: 0;
 }
+
