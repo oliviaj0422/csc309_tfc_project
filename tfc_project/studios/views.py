@@ -15,9 +15,6 @@ from classes.models import ClassInstance
 import math
 from math import pi
 
-# lat lon - > distance
-# 计算经纬度之间的距离，单位为千米
-
 EARTH_REDIUS = 6378.137
 
 
@@ -61,9 +58,14 @@ def set_distance(lon: float, lat: float):
 class ShowClassInStudioView(APIView):
     def get(self, request, *args, **kwargs):
         studio_name = request.GET.get('name', None)
+        page = int(request.GET.get('page', 1))
+        page_size = 5
         if studio_name:
             studio = Studio.objects.filter(name=studio_name).first()
             classes_model = ClassInstance.objects.filter(the_class__studio=studio)
+            count = classes_model.count()
+            classes_model = classes_model[page_size * (page - 1):page_size * page]
+            
             classes = []
             for item in classes_model:
                 classes.append({"classname":item.class_name,
@@ -78,7 +80,10 @@ class ShowClassInStudioView(APIView):
             # classes = ClassInstance.objects.filter(the_class__studio=cls_id,start_time__gte=current_time,is_cancelled=False).order_by('start_time')
         else:
             classes = []
-            for item in ClassInstance.objects.all():
+            classes_model = ClassInstance.objects.all()
+            count = classes_model.count()
+            classes_model = classes_model[page_size * (page - 1):page_size * page]
+            for item in classes_model:
                 classes.append({"classname":item.class_name,
                                 "id":item.id,
                                 "description":item.description,
@@ -90,7 +95,8 @@ class ShowClassInStudioView(APIView):
                                 })
         if classes:
             resp = {
-            'data':classes
+            'data':classes,
+            'count':count,
             }
             print(resp)
             return  Response(resp)
