@@ -1,6 +1,6 @@
 import React from 'react';
 import { Nav, NavLink, NavMenu, NavBtn, NavBtnLink, Logo, NavLogo } from './NavBar';
-import logo from '../../tfc_logo.png';
+import logo from '../../images/tfc_logo.png';
 import { LoginContext } from '../../Contexts/LoginContext';
 import { useContext } from 'react';
 
@@ -13,14 +13,11 @@ const NavBar = () => {
             <Logo src={logo} alt="logo"></Logo>
         </NavLogo>
         <NavMenu>
-          <NavLink to="/classes">
+        <NavLink to="/classes">
             Classes
           </NavLink>
           <NavLink to="/search_classes">
             SearchClasses
-          </NavLink>
-          <NavLink to="/memberships">
-            Membership
           </NavLink>
           <NavLink to="/my_schedule">
             MySchedule
@@ -28,21 +25,30 @@ const NavBar = () => {
           <NavLink to="/my_class_history">
             MyClassHistory
           </NavLink>
+          <NavLink to="/memberships">
+            MEMBERSHIP
+          </NavLink>
           <NavBtn>
             <NavBtnLink to="/register">JOIN US</NavBtnLink>
           </NavBtn>
           {loggedIn ? (
+            <>
             <NavLink to="/login" onClick={()=>{
               setLoggedIn(false);
               localStorage.clear();
             }}>
-            LOG OUT
-          </NavLink>  
+              LOG OUT
+            </NavLink> 
+            <NavLink to="/profile">
+              ACCOUNT
+            </NavLink> 
+        </>
             ) : (
               <NavLink to="/login">
               LOG IN
             </NavLink>
             )}
+            
         </NavMenu>
       </Nav>
     </>
