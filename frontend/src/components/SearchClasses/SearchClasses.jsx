@@ -8,10 +8,15 @@ const SearchClasses = () => {
 
     return(
         <React.Fragment>
-            <ClassName />
-            <CoachName />
-            <Date />
-            <TimeRange />
+            <center>
+                <ClassName />
+                <br></br>
+                <CoachName />
+                <br></br>
+                <Date />
+                <br></br>
+                <TimeRange />
+            </center>
         </React.Fragment>
     )
 

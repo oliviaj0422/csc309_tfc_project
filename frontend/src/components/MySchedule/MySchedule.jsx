@@ -89,63 +89,65 @@ const MySchedule = () => {
 
   return (
     <React.Fragment>
-      <h4>instance id of the class that you want to drop</h4>
-      <input
-        value={classID}
-        onChange={(event) => setClassID(event.target.value)}
-      />
+      <center>
+        <h4>instance id of the class that you want to drop</h4>
+        <input
+          value={classID}
+          onChange={(event) => setClassID(event.target.value)}
+        />
 
-      <button className="btn btn-primary btn-sm m-2" onClick={click}>
-        Drop
-      </button>
+        <button className="btn btn-primary btn-sm m-2" onClick={click}>
+          Drop
+        </button>
 
-      <button className="btn btn-primary btn-sm m-2" onClick={click1}>
-        Drop all future occurences of the class
-      </button>
+        <button className="btn btn-primary btn-sm m-2" onClick={click1}>
+          Drop all future occurences of the class
+        </button>
 
-      <h4>{dropInfo}</h4>
+        <h4>{dropInfo}</h4>
 
-      <table>
-        <thead>
-          <tr>
-            <th>class name</th>
-            <th>instance id</th>
-            <th>start time</th>
-            <th>end time</th>
-          </tr>
-        </thead>
-        <tbody>
-          {classes.map((classs) => (
-            <tr key={classs.id}>
-              <td>{classs.class_instance_name}</td>
-              <td>{classs.class_instance}</td>
-              <td>{classs.class_instance_start_time}</td>
-              <td>{classs.class_instance_end_time}</td>
+        <table>
+          <thead>
+            <tr>
+              <th>class name</th>
+              <th>instance id</th>
+              <th>start time</th>
+              <th>end time</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {classes.map((classs) => (
+              <tr key={classs.id}>
+                <td>{classs.class_instance_name}</td>
+                <td>{classs.class_instance}</td>
+                <td>{classs.class_instance_start_time}</td>
+                <td>{classs.class_instance_end_time}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
-      {page > 1 ? (
-        <button
-          className="btn btn-primary btn-sm m-1"
-          onClick={() => setPage(page - 1)}
-        >
-          prev
-        </button>
-      ) : (
-        <></>
-      )}
-      {page < totalPages ? (
-        <button
-          className="btn btn-primary btn-sm m-1"
-          onClick={() => setPage(page + 1)}
-        >
-          next
-        </button>
-      ) : (
-        <></>
-      )}
+        {page > 1 ? (
+          <button
+            className="btn btn-primary btn-sm m-1"
+            onClick={() => setPage(page - 1)}
+          >
+            prev
+          </button>
+        ) : (
+          <></>
+        )}
+        {page < totalPages ? (
+          <button
+            className="btn btn-primary btn-sm m-1"
+            onClick={() => setPage(page + 1)}
+          >
+            next
+          </button>
+        ) : (
+          <></>
+        )}
+      </center>
     </React.Fragment>
   );
 };

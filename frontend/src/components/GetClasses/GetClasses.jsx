@@ -91,78 +91,80 @@ const GetClasses = () => {
 
   return (
     <React.Fragment>
-      <h3>Studio Name</h3>
+      <center>
+        <h3>Studio Name</h3>
 
-      <input
-        value={studioName}
-        onChange={(event) => setStudioName(event.target.value)}
-      />
+        <input
+          value={studioName}
+          onChange={(event) => setStudioName(event.target.value)}
+        />
 
-      <h4>ClassID of the class that you want to enrol</h4>
-      <input
-        value={classID}
-        onChange={(event) => setClassID(event.target.value)}
-      />
+        <h4>ClassID of the class that you want to enrol</h4>
+        <input
+          value={classID}
+          onChange={(event) => setClassID(event.target.value)}
+        />
 
-      <button className="btn btn-primary btn-sm m-2" onClick={click}>
-        Enrol
-      </button>
+        <button className="btn btn-primary btn-sm m-2" onClick={click}>
+          Enrol
+        </button>
 
-      <button className="btn btn-primary btn-sm m-2" onClick={click1}>
-        Enrol all fure occurrences of the class
-      </button>
+        <button className="btn btn-primary btn-sm m-2" onClick={click1}>
+          Enrol all fure occurrences of the class
+        </button>
 
-      <h4>{enrolInfo}</h4>
+        <h4>{enrolInfo}</h4>
 
-      <table>
-        <thead>
-          <tr>
-            <th>id</th>
-            <th>class name</th>
-            <th>description</th>
-            <th>coach</th>
-            <th>keywords</th>
-            <th>space availability</th>
-            <th>start time</th>
-            <th>end time</th>
-          </tr>
-        </thead>
-        <tbody>
-          {classes && classes.map((classs) => (
-            <tr key={classs.id}>
-              <td>{classs.id}</td>
-              <td>{classs.classname}</td>
-              <td>{classs.description}</td>
-              <td>{classs.coach}</td>
-              <td>{classs.keywords}</td>
-              <td>{classs.spaceavailability}</td>
-              <td>{classs.starttime}</td>
-              <td>{classs.endtime}</td>
+        <table>
+          <thead>
+            <tr>
+              <th>id</th>
+              <th>class name</th>
+              <th>description</th>
+              <th>coach</th>
+              <th>keywords</th>
+              <th>space availability</th>
+              <th>start time</th>
+              <th>end time</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {classes && classes.map((classs) => (
+              <tr key={classs.id}>
+                <td>{classs.id}</td>
+                <td>{classs.classname}</td>
+                <td>{classs.description}</td>
+                <td>{classs.coach}</td>
+                <td>{classs.keywords}</td>
+                <td>{classs.spaceavailability}</td>
+                <td>{classs.starttime}</td>
+                <td>{classs.endtime}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
-      {page > 1 ? (
-        <button
-          className="btn btn-primary btn-sm m-1"
-          onClick={() => setPage(page - 1)}
-        >
-          prev
-        </button>
-      ) : (
-        <></>
-      )}
-      {page < totalPages ? (
-        <button
-          className="btn btn-primary btn-sm m-1"
-          onClick={() => setPage(page + 1)}
-        >
-          next
-        </button>
-      ) : (
-        <></>
-      )}
+        {page > 1 ? (
+          <button
+            className="btn btn-primary btn-sm m-1"
+            onClick={() => setPage(page - 1)}
+          >
+            prev
+          </button>
+        ) : (
+          <></>
+        )}
+        {page < totalPages ? (
+          <button
+            className="btn btn-primary btn-sm m-1"
+            onClick={() => setPage(page + 1)}
+          >
+            next
+          </button>
+        ) : (
+          <></>
+        )}
+      </center>
     </React.Fragment>
   );
 };
