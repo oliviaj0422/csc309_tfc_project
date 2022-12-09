@@ -3,7 +3,7 @@ import { useState, useEffect, useContext } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { LoginContext } from "../Contexts/LoginContext";
 import axios from 'axios';
-import { Alert, Form } from 'react-bootstrap';
+import { Form } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "../App.css";
 
