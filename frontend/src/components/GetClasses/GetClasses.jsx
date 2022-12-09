@@ -24,11 +24,15 @@ const GetClasses = () => {
     const a = params.toString().split("=")[1];
     setStudioName(a);
   }, []);
+
+
+
   useEffect(() => {
-    getClassDetail({ name: studioName }).then((data) => {
+    getClassDetail({ name: studioName, page: page }).then((data) => {
       setClasses(data.data);
+      setTotalPages(data.count);
     });
-  }, [studioName, page, x, x1]);
+  }, [studioName, page,x, x1]);
 
   useEffect(() => {
     fetch(`http://127.0.0.1:8000/classes/enrol_class/${classID}/`, {
