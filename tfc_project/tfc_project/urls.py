@@ -16,21 +16,31 @@ Including another URLconf
 from django.contrib import admin
 from django.shortcuts import redirect
 from django.urls import include, path
-from accounts.views import CreateUserView, CreateCardView, EditProfileView, \
-    UpdateCardView, PaymentHistoryView, MembershipView
+from django.conf import settings
+from django.conf.urls.static import static
 from rest_framework_simplejwt.views import TokenObtainPairView
+
+from accounts.views import CreateUserView, CreateCardView, \
+    CustomTokenObtainPairView, EditProfileView, \
+    UpdateCardView, PaymentHistoryView, MembershipView, SingleProfileView, \
+    DeleteCardView
+
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('account/signup/', CreateUserView.as_view()),
     path('account/add_payment_method/', CreateCardView.as_view()),
+    path('account/<int:pk>/profile/', SingleProfileView.as_view()),
     path('account/<int:pk>/profile/edit/', EditProfileView.as_view()),
     path('account/<int:pk>/profile/update_card_info/', UpdateCardView.as_view()),
+    path('account/<int:pk>/profile/delete_card/', DeleteCardView.as_view()),
     path('account/payment_history/', PaymentHistoryView.as_view()),
     path('memberships/', MembershipView.as_view()),
     path('classes/', include('classes.urls')),
     path('studios/', include('studios.urls')),
     path('', lambda r: redirect('/admin'))
-]
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
 
