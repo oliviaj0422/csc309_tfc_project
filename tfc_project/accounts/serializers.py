@@ -1,6 +1,17 @@
 from rest_framework import serializers
 from accounts.models import CustomUser, Card, MembershipPlan, Payment
 from datetime import date
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        # The default result (access/refresh tokens)
+        data = super(CustomTokenObtainPairSerializer, self).validate(attrs)
+        # Custom data you want to include
+        data.update({'id': self.user.id})
+        # and everything else you want to send in the response
+        return data
 
 
 class CustomUserSerializer(serializers.ModelSerializer):
@@ -49,6 +60,21 @@ class CustomUserSerializer(serializers.ModelSerializer):
 
 
 class CardSerializer(serializers.ModelSerializer):
+
+    card_num = serializers.CharField(
+        min_length=16,
+        error_messages={
+            "min_length": f"Invalid card number. It has to be a 16-digit number."
+        }
+    )
+
+    cvv = serializers.CharField(
+        min_length=3,
+        error_messages={
+            "min_length": f"Invalid cvv. It has to be a 3-digit number."
+        }
+    )
+
     class Meta:
         model = Card
         fields = ['id', 'card_num', 'billing_addr', 'expires_at', 'cvv',

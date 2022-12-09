@@ -77,15 +77,22 @@ def card_post_save(sender, instance, created, *args, **kwargs):
         # if holder already has payments associated with the old card, update
         if Payment.objects.filter(payer=instance.holder.username,
                                   pmt_status='PD'):
+            print("Yes")
             if Card.objects.filter(holder=instance.holder).exclude(
                 card_num=instance.card_num).exists():
+                print("Right")
                 old_cards = Card.objects.filter(holder=instance.holder).exclude(
                     card_num=instance.card_num)
                 pd_pmts = Payment.objects.none()
+                print(old_cards)
                 if old_cards:
+                    print("old_cards")
                     for card in old_cards:
-                        pd_pmts = pd_pmts | Payment.objects.filter(pmt_method=
-                                                card.card_num, pmt_status='PD')
+                        payments = Payment.objects.filter(
+                            pmt_method=card.card_num, pmt_status='PD')
+                        print(payments)
+                        pd_pmts = pd_pmts | payments
+                    print(pd_pmts)
                 pd_pmts.update(pmt_method=instance.card_num)
         else:
             amt = MembershipPlan.objects.get(
@@ -113,6 +120,12 @@ def card_post_save(sender, instance, created, *args, **kwargs):
 
 
 post_save.connect(card_post_save, sender=Card)
+
+def card_post_delete(sender, instance, *args, **kwargs):
+    pmt = Payment.objects.filter(pmt_method=instance.card_num)
+    pmt.update(pmt_status="C")
+
+post_delete.connect(card_post_delete, sender=Card)
 
 PMT_STATUS = [
     ('C', 'Cancelled'),

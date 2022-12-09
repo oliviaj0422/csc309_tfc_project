@@ -1,13 +1,20 @@
 from dateutil.relativedelta import relativedelta
-from rest_framework.generics import ListAPIView, CreateAPIView, UpdateAPIView
+from rest_framework.generics import DestroyAPIView, ListAPIView, CreateAPIView, \
+    UpdateAPIView, \
+    RetrieveAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializers import CustomUserSerializer, CardSerializer, \
-    MembershipPlanSerializer, PaymentSerializer
+    MembershipPlanSerializer, PaymentSerializer, CustomTokenObtainPairSerializer
 from .models import CustomUser, Card, Payment, MembershipPlan
 import datetime
 from classes.models import UserEnrolledClass
+
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
 
 
 class CreateUserView(CreateAPIView):
@@ -22,6 +29,12 @@ class CreateCardView(CreateAPIView):
     def perform_create(self, serializer):
         serializer.save(holder=self.request.user)
         self.request.user.is_subscribed = True
+
+
+class SingleProfileView(RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+    queryset = CustomUser.objects.all()
+    serializer_class = CustomUserSerializer
 
 
 class EditProfileView(UpdateAPIView):
@@ -126,7 +139,9 @@ class EditProfileView(UpdateAPIView):
                                 new_pmt.save()
 
             user_obj.save()
-            serializer = CustomUserSerializer(user_obj)
+            serializer = CustomUserSerializer(data=user_obj)
+            if serializer.is_valid():
+                serializer.save()
             return Response(serializer.data)
         return Response({'error': 'Unauthenticated.'})
 
@@ -155,12 +170,18 @@ class UpdateCardView(UpdateAPIView):
             serializer = CardSerializer(card_obj)
 
             return Response(serializer.data)
-        return Response({'error': 'You have no permissions to update this '
+        return Response({'error': 'You are not authorized to update this '
                                   'card.'})
 
 
+class DeleteCardView(DestroyAPIView):
+    permission_classes = [IsAuthenticated]
+    queryset = Card.objects.all()
+    serializer_class = CardSerializer
+
+
 class ListPagination(PageNumberPagination):
-    page_size=5
+    page_size=10
 
 
 class PaymentHistoryView(ListAPIView):
@@ -176,5 +197,8 @@ class PaymentHistoryView(ListAPIView):
 class MembershipView(ListAPIView):
     serializer_class = MembershipPlanSerializer
     pagination_class = ListPagination
+    queryset = MembershipPlan.objects.all()
+
+
 
 
