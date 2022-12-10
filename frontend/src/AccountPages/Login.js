@@ -2,7 +2,6 @@ import { baseUrl } from "../base_url";
 import { useState, useContext } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { LoginContext } from "../Contexts/LoginContext";
-import { Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "../App.css";
 
@@ -54,7 +53,7 @@ export default function Login() {
     }
     return (
         
-        <form className="m-2 w-full max-w-sm" id="customer" onSubmit={login}>
+        <form className="m-2 w-full max-w-sm" id="customer" onSubmit={login} style={{"textAlign": "center"}}>
             <div className="md:flex md:items-center mb-6">
                 <h3>Log In</h3>
                 <br />

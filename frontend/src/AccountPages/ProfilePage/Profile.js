@@ -58,6 +58,22 @@ export default function PersonalProfile() {
     );
   }
 
+  const redirectClassHistory = () => {
+    navigate(
+      location?.state?.previousUrl
+          ? location.state.previousUrl
+          : '/my_class_history'
+    );
+  }
+
+  const redirectClassSched = () => {
+    navigate(
+      location?.state?.previousUrl
+          ? location.state.previousUrl
+          : '/my_schedule'
+    );
+  }
+
   useEffect(() => {
     const url3 = baseUrl + `account/${localStorage.getItem("card_id")}/profile/delete_card/`
     if (toDelete) {
@@ -100,16 +116,22 @@ export default function PersonalProfile() {
   return (
     // template: bootstrap
     <>
-      <h3>Profile</h3><br/>
+      <h3 style={{"textAlign": "center"}}>Profile</h3><br/>
 
-      <div className="d-grid gap-2 d-md-flex justify-content-md-end" style={{"margin-right": "100px"}}>
-        <Button variant="outline-primary" type="button" onClick={redirectProfile}>Edit Profile</Button>
-        <Button variant="outline-primary" type="button" onClick={redirectAddCard}>Change Card</Button>
-        <Button variant="outline-primary" type="button" onClick={redirectViewPayments}>View Payment History</Button>
+      <div className="d-grid gap-2 d-md-flex justify-content-md-end" style={{"margin-right": "150px"}}>
+        <Button variant="outline-primary" type="button" onClick={redirectProfile} style={{"marginRight": "20px"}}>Edit Profile</Button>
+        <Button variant="outline-primary" type="button" onClick={redirectAddCard} style={{"marginRight": "20px"}}>Change Card</Button>
+        <Button variant="outline-primary" type="button" onClick={redirectViewPayments} style={{"marginRight": "20px"}}>View Payment History</Button>
+        <Button variant="outline-primary" type="button" onClick={redirectClassSched} style={{"marginRight": "20px"}}>My Class Schedule</Button>
+        <Button variant="outline-primary" type="button" onClick={redirectClassHistory} style={{"marginRight": "20px"}}>My Class History</Button>
       </div>
+      <br/>
 
+    <br/>
     <div className="container">
-    <Image src="https://www.goodlifefitness.com/membership/_jcr_content/root/responsivegrid/responsivegrid_273362955/responsivegrid_11536_1769350086/responsivegrid/image.coreimg.90.512.jpeg/1637071889725/web-latpulldown.jpeg" img="rounded"></Image>
+    <Image src={avatar} img="rounded"></Image>
+    <br/>
+    <br/>
     <div className="mb-3 row">
       <label htmlFor="staticUsername" className="col-sm-2 col-form-label">Username</label>
     <div className="col-sm-10">

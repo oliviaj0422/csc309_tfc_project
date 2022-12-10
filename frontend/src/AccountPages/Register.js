@@ -6,6 +6,7 @@ import axios from 'axios';
 import { Form } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "../App.css";
+import defaultProfile from "../images/default_pic.jpg"
 
 export default function Register() {
     const [loggedIn, setLoggedIn] = useContext(LoginContext);
@@ -17,7 +18,7 @@ export default function Register() {
     const [last, setLast] = useState("");
     const [phone, setPhone] = useState("");
     const [pmt, setPmt] = useState("");
-    const [avatar, setAvatar] = useState(null);
+    const [avatar, setAvatar] = useState("");
     const [memberships, setMemberships] = useState(null);
 
     const [show, setShow] = useState(false);
@@ -49,6 +50,9 @@ export default function Register() {
         const url = baseUrl + "account/signup/";
 
         const formData = new FormData();
+        console.log(username);
+        console.log(password);
+        console.log(email);
         formData.append('username', username);
         formData.append('password', password);
         formData.append('password2', password2);
@@ -58,6 +62,7 @@ export default function Register() {
         formData.append('phone_num', phone);
         formData.append('pmt_option', pmt);
         formData.append('avatar', avatar);
+        console.log(avatar);
 
         axios.post(url, formData, {
             headers: {
@@ -74,28 +79,30 @@ export default function Register() {
             return res;
         })
         .catch((e) => {
-            console.log(e.response.data);
-            if (e.response.data.username) {
-                setUsernameError(e.response.data.username);
+            if (e) {
+                if (e.response.data.username) {
+                    setUsernameError(e.response.data.username);
+                }
+                else {setUsernameError("");}
+                if (e.response.data.password) {
+                    setPwd1Error(e.response.data.password);
+                }
+                else {setPwd1Error("");}
+                if (e.response.data.non_field_errors) {
+                    setPwd2Error(e.response.data.non_field_errors);
+                }
+                else {setPwd2Error("");}
+                if (e.response.data.email) {
+                    setEmailError(e.response.data.email);
+                }
+                else {setEmailError("");}
             }
-            else {setUsernameError("");}
-            if (e.response.data.password) {
-                setPwd1Error(e.response.data.password);
-            }
-            else {setPwd1Error("");}
-            if (e.response.data.non_field_errors) {
-                setPwd2Error(e.response.data.non_field_errors);
-            }
-            else {setPwd2Error("");}
-            if (e.response.data.email) {
-                setEmailError(e.response.data.email);
-            }
-            else {setEmailError("");}
+    
         })
     }
     return (
         
-        <form className="form-container" id="cform" onSubmit={register}>
+        <form className="form-container" id="cform" onSubmit={register} style={{"textAlign": "center"}}>
             <h3>Register Your Account</h3>
             <br/>
             <h6 style={{"color": "red"}}>*: required field</h6><br/>
@@ -254,6 +261,7 @@ export default function Register() {
             <div className="md:flex md:items-center mb-6">
                 <div className="md:w-1/4">
                     <label htmlFor="pmt_option">Membership Plan</label>
+                    <label className="require-symbol" style={{"color": "red"}}>*</label>
                 </div>
 
                 <div className="md:w-3/4">
@@ -298,8 +306,8 @@ export default function Register() {
             </div>
             </div>
             <br/>
-            <div class="d-grid gap-2 d-md-flex justify-content-md-end" style={{"marginRight": "200px", "marginBottom": "200px"}}>
-                <button class="btn btn-success me-md-2" type="submit">Register</button>
+            <div className="d-grid gap-2 d-md-flex justify-content-md-end" style={{"marginRight": "200px", "marginBottom": "200px"}}>
+                <button className="btn btn-success me-md-2" type="submit">Register</button>
             </div>
             {/* <div className="error-msg">
                 <p style={{color: "red"}}>{error}</p>

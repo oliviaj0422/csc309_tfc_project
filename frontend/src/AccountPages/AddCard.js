@@ -89,7 +89,7 @@ export default function AddCard() {
 
     }
     return (
-        <form className="m-2 w-full max-w-sm" id="customer" onSubmit={addCard}>
+        <form className="m-2 w-full max-w-sm" id="customer" onSubmit={addCard} style={{"textAlign": "center"}}>
             <h3>Add Payment Method</h3>
             <br/>
             <h6 style={{"color": "red"}}>*: required field</h6><br/>

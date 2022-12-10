@@ -107,7 +107,7 @@ export default function EditProfile() {
     
     return (
         <>
-        <form className="form-container" id="cform" onSubmit={edit}>
+        <form className="form-container" id="cform" onSubmit={edit} style={{"textAlign": "center"}}>
             <h3>Edit Profile</h3><br/>
             <div className="md:flex md:items-center mb-6">
                 <div className="md:w-1/4">

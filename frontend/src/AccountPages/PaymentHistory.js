@@ -4,7 +4,6 @@ import { LoginContext } from "../Contexts/LoginContext";
 import { useNavigate, useLocation } from 'react-router-dom';
 import "../App.css"
 import "./PaymentTable/style.css"
-import { Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 export default function PaymentHistory() {
@@ -52,8 +51,9 @@ export default function PaymentHistory() {
 
     return (
         <>
-            <h3>Payment History</h3> <br />
-
+            <div className="title-name">
+            <h3 style={{"textAlign": "center"}}>Payment History</h3> <br />
+            </div>
 
             <table>
                 <thead>
@@ -84,7 +84,7 @@ export default function PaymentHistory() {
             </table>
             <br/>
 
-            <div style={{"marginBottom": "200px"}}>
+            <div style={{"marginBottom": "200px", "textAlign": "center"}}>
             <button
                 className="btn btn-outline-primary btn-sm m-1"
                 onClick={redirect}

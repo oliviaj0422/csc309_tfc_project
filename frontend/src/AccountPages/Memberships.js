@@ -1,7 +1,7 @@
-import { useEffect, useState, useContext } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { baseUrl } from "../base_url";
 import "../App.css"
+import "./PaymentTable/style.css"
 import 'bootstrap/dist/css/bootstrap.min.css';
 import image1 from "../images/web-hero-crop.jpeg"
 import image2 from "../images/web-latpulldown.jpeg"
@@ -23,7 +23,9 @@ export default function Memberships() {
 
     return (
         <>
+            <div className="title-name" style={{"textAlign": "center"}}>
             <h3>Choose Your Membership</h3> 
+            </div>
 
             <div className="plan-container">
             {memberships.length > 0 ? memberships.map((membership)=>{

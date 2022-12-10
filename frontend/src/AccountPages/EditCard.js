@@ -60,7 +60,7 @@ export default function UpdateCard() {
     
     return (
         <>
-        <form className="form-container" id="cform" onSubmit={editCard}>
+        <form className="form-container" id="cform" onSubmit={editCard} style={{"textAlign": "center"}}>
             <h3>Update Card Info</h3><br/>
             <h6 style={{"color": "green"}}>If you want to change your card number or cvv code, please add a new payment method.</h6>
             <br />
