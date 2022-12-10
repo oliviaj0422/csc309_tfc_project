@@ -14,17 +14,17 @@ const NavBar = () => {
         </NavLogo>
         <NavMenu>
         <NavLink to="/classes">
-            Classes
+            CLASSES
           </NavLink>
           <NavLink to="/search_classes">
-            SearchClasses
+            SEARCH CLASSES
           </NavLink>
-          <NavLink to="/my_schedule">
+          {/* <NavLink to="/my_schedule">
             MySchedule
           </NavLink>
           <NavLink to="/my_class_history">
             MyClassHistory
-          </NavLink>
+          </NavLink> */}
           <NavLink to="/memberships">
             MEMBERSHIP
           </NavLink>
